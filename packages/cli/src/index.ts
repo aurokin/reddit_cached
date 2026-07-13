@@ -85,7 +85,7 @@ Global options:
 
 Auth login options:
   --open-browser          Open the Reddit authorization URL in your browser
-  REDDIT_SAVED_OPEN_BROWSER=1 also enables automatic browser launch
+  REDDIT_CACHED_OPEN_BROWSER=1 also enables automatic browser launch
 
 Auth note:
   Fetch commands prefer the browser-extension session (session.json) and fall
@@ -135,6 +135,6 @@ main().catch((err) => {
 function applyGlobalPathOverrides(flags: Record<string, string | boolean>): void {
   const configPath = flagStr(flags, "config");
   if (configPath) {
-    process.env.REDDIT_SAVED_CONFIG_DIR = configPath;
+    process.env.REDDIT_CACHED_CONFIG_DIR = configPath;
   }
 }

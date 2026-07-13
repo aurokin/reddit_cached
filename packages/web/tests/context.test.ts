@@ -6,7 +6,7 @@ import { closeAppContext, getAppContext } from "@/api/context";
 import { paths } from "@reddit-cached/core";
 
 const originalDataDir = process.env.XDG_DATA_HOME;
-const originalDbPath = process.env.REDDIT_SAVED_DB;
+const originalDbPath = process.env.REDDIT_CACHED_DB;
 
 describe("web app context", () => {
   let tempDir: string;
@@ -14,7 +14,7 @@ describe("web app context", () => {
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), "reddit-cached-web-context-"));
     process.env.XDG_DATA_HOME = join(tempDir, "data");
-    delete process.env.REDDIT_SAVED_DB;
+    delete process.env.REDDIT_CACHED_DB;
     closeAppContext();
   });
 
@@ -26,14 +26,14 @@ describe("web app context", () => {
       process.env.XDG_DATA_HOME = originalDataDir;
     }
     if (originalDbPath === undefined) {
-      delete process.env.REDDIT_SAVED_DB;
+      delete process.env.REDDIT_CACHED_DB;
     } else {
-      process.env.REDDIT_SAVED_DB = originalDbPath;
+      process.env.REDDIT_CACHED_DB = originalDbPath;
     }
     rmSync(tempDir, { recursive: true, force: true });
   });
 
-  test("uses the shared core database path when REDDIT_SAVED_DB is unset", () => {
+  test("uses the shared core database path when REDDIT_CACHED_DB is unset", () => {
     const ctx = getAppContext();
 
     expect(ctx.dbPath).toBe(paths.database);

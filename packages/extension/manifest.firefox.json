@@ -16,7 +16,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "reddit-saved-companion@local",
+      "id": "reddit-cached-companion@local",
       "strict_min_version": "121.0"
     }
   }

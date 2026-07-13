@@ -15,8 +15,8 @@ Prefer:
 
 1. The CLI from the repo: `cd packages/cli && bun run src/index.ts <command>`
 2. An installed `reddit-cached` binary
-3. Direct SQLite as a last resort: `~/Library/Application Support/reddit-saved/reddit-saved.db`
-   (Linux: `~/.local/share/reddit-saved/reddit-saved.db`; override with `REDDIT_SAVED_DB`)
+3. Direct SQLite as a last resort: `~/Library/Application Support/reddit-cached/reddit-cached.db`
+   (Linux: `~/.local/share/reddit-cached/reddit-cached.db`; override with `REDDIT_CACHED_DB`)
 
 Check health and freshness before analysis:
 

@@ -68,8 +68,8 @@ beforeEach(() => {
   originalFetch = globalThis.fetch;
 
   // Redirect auth file writes to temp dir so tests never touch real credentials.
-  originalConfigDir = process.env.REDDIT_SAVED_CONFIG_DIR;
-  process.env.REDDIT_SAVED_CONFIG_DIR = join(tempDir, "reddit-cached");
+  originalConfigDir = process.env.REDDIT_CACHED_CONFIG_DIR;
+  process.env.REDDIT_CACHED_CONFIG_DIR = join(tempDir, "reddit-cached");
 
   // Intercept fetch calls to Reddit OAuth endpoints and redirect to mock.
   // Requests to 127.0.0.1 (the local OAuth callback server) pass through.
@@ -97,9 +97,9 @@ beforeEach(() => {
 afterEach(() => {
   globalThis.fetch = originalFetch;
   if (originalConfigDir === undefined) {
-    Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+    Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
   } else {
-    process.env.REDDIT_SAVED_CONFIG_DIR = originalConfigDir;
+    process.env.REDDIT_CACHED_CONFIG_DIR = originalConfigDir;
   }
   rmSync(tempDir, { recursive: true, force: true });
 });

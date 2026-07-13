@@ -68,7 +68,7 @@ beforeEach(() => {
   lockFilePath = join(configDir, "auth.lock");
 
   // Point paths.config to our temp dir on every OS.
-  process.env.REDDIT_SAVED_CONFIG_DIR = configDir;
+  process.env.REDDIT_CACHED_CONFIG_DIR = configDir;
   process.env.REDDIT_CLIENT_SECRET = "test-client-secret";
 });
 
@@ -80,10 +80,10 @@ afterEach(() => {
   } else {
     process.env.REDDIT_CLIENT_SECRET = undefined;
   }
-  if (originalEnv.REDDIT_SAVED_CONFIG_DIR !== undefined) {
-    process.env.REDDIT_SAVED_CONFIG_DIR = originalEnv.REDDIT_SAVED_CONFIG_DIR;
+  if (originalEnv.REDDIT_CACHED_CONFIG_DIR !== undefined) {
+    process.env.REDDIT_CACHED_CONFIG_DIR = originalEnv.REDDIT_CACHED_CONFIG_DIR;
   } else {
-    Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+    Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
   }
   rmSync(tempDir, { recursive: true, force: true });
 });

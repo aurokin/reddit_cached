@@ -59,12 +59,12 @@ describe("inbox route", () => {
 
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), "reddit-cached-web-inbox-"));
-    process.env.REDDIT_SAVED_DB = join(tempDir, "test.db");
+    process.env.REDDIT_CACHED_DB = join(tempDir, "test.db");
   });
 
   afterEach(() => {
     closeAppContext();
-    process.env.REDDIT_SAVED_DB = undefined;
+    process.env.REDDIT_CACHED_DB = undefined;
     rmSync(tempDir, { recursive: true, force: true });
   });
 

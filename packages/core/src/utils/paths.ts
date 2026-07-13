@@ -1,8 +1,8 @@
 import { homedir, platform } from "node:os";
 import { dirname, join } from "node:path";
 
-const APP_NAME = "reddit-saved";
-const CUSTOM_CONFIG_DIR_ENV = "REDDIT_SAVED_CONFIG_DIR";
+const APP_NAME = "reddit-cached";
+const CUSTOM_CONFIG_DIR_ENV = "REDDIT_CACHED_CONFIG_DIR";
 
 function getConfigDir(): string {
   const customConfigDir = process.env[CUSTOM_CONFIG_DIR_ENV];
@@ -39,7 +39,7 @@ export const paths = {
   get config() {
     return getConfigDir();
   },
-  /** Directory for data files (reddit-saved.db, checkpoint) — re-evaluated on each access for testability */
+  /** Directory for data files (reddit-cached.db, checkpoint) — re-evaluated on each access for testability */
   get data() {
     return getDataDir();
   },
@@ -62,7 +62,7 @@ export const paths = {
   },
   /** Full path to SQLite database */
   get database() {
-    return join(getDataDir(), "reddit-saved.db");
+    return join(getDataDir(), "reddit-cached.db");
   },
   /** Full path to import checkpoint file */
   get checkpoint() {

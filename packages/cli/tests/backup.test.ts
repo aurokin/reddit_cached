@@ -20,13 +20,13 @@ describe("backup commands", () => {
 
     const configDir = join(tempDir, "config");
     mkdirSync(configDir, { recursive: true });
-    process.env.REDDIT_SAVED_CONFIG_DIR = configDir;
+    process.env.REDDIT_CACHED_CONFIG_DIR = configDir;
     process.env.XDG_DATA_HOME = tempDir;
   });
 
   afterEach(() => {
     setOutputMode(false, false, false);
-    for (const key of ["REDDIT_SAVED_CONFIG_DIR", "XDG_DATA_HOME"]) {
+    for (const key of ["REDDIT_CACHED_CONFIG_DIR", "XDG_DATA_HOME"]) {
       if (originalEnv[key] !== undefined) {
         process.env[key] = originalEnv[key];
       } else {

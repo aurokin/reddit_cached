@@ -87,7 +87,7 @@ export async function authLogin(
 }
 
 function shouldOpenBrowser(flags: Record<string, string | boolean>): boolean {
-  return flagBool(flags, "open-browser") || process.env.REDDIT_SAVED_OPEN_BROWSER === "1";
+  return flagBool(flags, "open-browser") || process.env.REDDIT_CACHED_OPEN_BROWSER === "1";
 }
 
 function openBrowser(url: string): void {

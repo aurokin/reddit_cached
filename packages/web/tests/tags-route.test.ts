@@ -44,12 +44,12 @@ describe("tags routes", () => {
 
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), "reddit-cached-web-tags-"));
-    process.env.REDDIT_SAVED_DB = join(tempDir, "test.db");
+    process.env.REDDIT_CACHED_DB = join(tempDir, "test.db");
   });
 
   afterEach(() => {
     closeAppContext();
-    delete process.env.REDDIT_SAVED_DB;
+    delete process.env.REDDIT_CACHED_DB;
     rmSync(tempDir, { recursive: true, force: true });
   });
 

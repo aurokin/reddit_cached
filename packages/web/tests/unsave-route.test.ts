@@ -29,7 +29,7 @@ describe("unsave route", () => {
 
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), "reddit-cached-web-unsave-"));
-    process.env.REDDIT_SAVED_DB = join(tempDir, "test.db");
+    process.env.REDDIT_CACHED_DB = join(tempDir, "test.db");
     ctx = getAppContext();
     originalUnsaveItems = ctx.apiClient.unsaveItems.bind(ctx.apiClient);
   });
@@ -37,7 +37,7 @@ describe("unsave route", () => {
   afterEach(() => {
     ctx.apiClient.unsaveItems = originalUnsaveItems;
     closeAppContext();
-    delete process.env.REDDIT_SAVED_DB;
+    delete process.env.REDDIT_CACHED_DB;
     rmSync(tempDir, { recursive: true, force: true });
   });
 

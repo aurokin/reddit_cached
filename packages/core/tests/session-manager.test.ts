@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { SessionManager, paths } from "../src";
 
 const originalFetch = globalThis.fetch;
-const originalConfigDir = process.env.REDDIT_SAVED_CONFIG_DIR;
+const originalConfigDir = process.env.REDDIT_CACHED_CONFIG_DIR;
 
 describe("SessionManager", () => {
   let configDir: string;
@@ -13,7 +13,7 @@ describe("SessionManager", () => {
 
   beforeEach(async () => {
     configDir = mkdtempSync(join(tmpdir(), "reddit-cached-session-test-"));
-    process.env.REDDIT_SAVED_CONFIG_DIR = configDir;
+    process.env.REDDIT_CACHED_CONFIG_DIR = configDir;
     manager = new SessionManager();
     globalThis.fetch = mock(async () =>
       Response.json({
@@ -35,9 +35,9 @@ describe("SessionManager", () => {
     await manager.clear();
     rmSync(configDir, { recursive: true, force: true });
     if (originalConfigDir === undefined) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     } else {
-      process.env.REDDIT_SAVED_CONFIG_DIR = originalConfigDir;
+      process.env.REDDIT_CACHED_CONFIG_DIR = originalConfigDir;
     }
   });
 

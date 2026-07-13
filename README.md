@@ -39,8 +39,8 @@ Then open `http://127.0.0.1:3001` and connect your Reddit session:
    agents.
 
 The database lives in the platform data directory (macOS:
-`~/Library/Application Support/reddit-saved/reddit-saved.db`); override with
-`REDDIT_SAVED_DB=<path>`.
+`~/Library/Application Support/reddit-cached/reddit-cached.db`); override with
+`REDDIT_CACHED_DB=<path>`.
 
 ## Verification
 

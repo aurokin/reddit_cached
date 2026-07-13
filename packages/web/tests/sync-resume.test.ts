@@ -49,7 +49,7 @@ describe("sync route checkpoint recovery", () => {
 
   function bootApp(dbPath: string): void {
     closeAppContext();
-    process.env.REDDIT_SAVED_DB = dbPath;
+    process.env.REDDIT_CACHED_DB = dbPath;
     ctx = getAppContext();
     originalCreatePinnedProvider = ctx.authProvider.createPinnedProvider.bind(ctx.authProvider);
     ctx.authProvider.createPinnedProvider = async () => fakeProvider;
@@ -66,7 +66,7 @@ describe("sync route checkpoint recovery", () => {
     RedditApiClient.prototype.fetchSaved = originalFetchSaved;
     ctx.authProvider.createPinnedProvider = originalCreatePinnedProvider;
     closeAppContext();
-    delete process.env.REDDIT_SAVED_DB;
+    delete process.env.REDDIT_CACHED_DB;
     delete process.env.XDG_DATA_HOME;
     rmSync(tempDir, { recursive: true, force: true });
   });

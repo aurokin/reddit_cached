@@ -31,15 +31,15 @@ describe("auth status", () => {
   beforeEach(() => {
     tempDir = join(tmpdir(), `cli-auth-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(tempDir, { recursive: true });
-    process.env.REDDIT_SAVED_CONFIG_DIR = join(tempDir, "reddit-cached");
+    process.env.REDDIT_CACHED_CONFIG_DIR = join(tempDir, "reddit-cached");
     setOutputMode(false, false, false);
   });
 
   afterEach(() => {
     setOutputMode(false, false, false);
-    process.env.REDDIT_SAVED_CONFIG_DIR = originalEnv.REDDIT_SAVED_CONFIG_DIR;
-    if (!originalEnv.REDDIT_SAVED_CONFIG_DIR) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+    process.env.REDDIT_CACHED_CONFIG_DIR = originalEnv.REDDIT_CACHED_CONFIG_DIR;
+    if (!originalEnv.REDDIT_CACHED_CONFIG_DIR) {
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     }
     if (originalEnv.REDDIT_CLIENT_SECRET !== undefined) {
       process.env.REDDIT_CLIENT_SECRET = originalEnv.REDDIT_CLIENT_SECRET;
@@ -183,15 +183,15 @@ describe("auth logout", () => {
   beforeEach(() => {
     tempDir = join(tmpdir(), `cli-auth-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(tempDir, { recursive: true });
-    process.env.REDDIT_SAVED_CONFIG_DIR = join(tempDir, "reddit-cached");
+    process.env.REDDIT_CACHED_CONFIG_DIR = join(tempDir, "reddit-cached");
     setOutputMode(false, false, false);
   });
 
   afterEach(() => {
     setOutputMode(false, false, false);
-    process.env.REDDIT_SAVED_CONFIG_DIR = originalEnv.REDDIT_SAVED_CONFIG_DIR;
-    if (!originalEnv.REDDIT_SAVED_CONFIG_DIR) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+    process.env.REDDIT_CACHED_CONFIG_DIR = originalEnv.REDDIT_CACHED_CONFIG_DIR;
+    if (!originalEnv.REDDIT_CACHED_CONFIG_DIR) {
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     }
     rmSync(tempDir, { recursive: true, force: true });
   });
@@ -265,20 +265,20 @@ describe("auth login", () => {
   beforeEach(() => {
     tempDir = join(tmpdir(), `cli-auth-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(tempDir, { recursive: true });
-    process.env.REDDIT_SAVED_CONFIG_DIR = join(tempDir, "reddit-cached");
+    process.env.REDDIT_CACHED_CONFIG_DIR = join(tempDir, "reddit-cached");
     setOutputMode(false, false, false);
   });
 
   afterEach(() => {
     setOutputMode(false, false, false);
-    process.env.REDDIT_SAVED_CONFIG_DIR = originalEnv.REDDIT_SAVED_CONFIG_DIR;
-    if (!originalEnv.REDDIT_SAVED_CONFIG_DIR) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+    process.env.REDDIT_CACHED_CONFIG_DIR = originalEnv.REDDIT_CACHED_CONFIG_DIR;
+    if (!originalEnv.REDDIT_CACHED_CONFIG_DIR) {
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     }
-    if (originalEnv.REDDIT_SAVED_OPEN_BROWSER !== undefined) {
-      process.env.REDDIT_SAVED_OPEN_BROWSER = originalEnv.REDDIT_SAVED_OPEN_BROWSER;
+    if (originalEnv.REDDIT_CACHED_OPEN_BROWSER !== undefined) {
+      process.env.REDDIT_CACHED_OPEN_BROWSER = originalEnv.REDDIT_CACHED_OPEN_BROWSER;
     } else {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_OPEN_BROWSER");
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_OPEN_BROWSER");
     }
     // Clean up env vars that might have been set
     process.env.REDDIT_CLIENT_ID = undefined;
@@ -647,15 +647,15 @@ describe("auth status — human mode", () => {
   beforeEach(() => {
     tempDir = join(tmpdir(), `cli-auth-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(tempDir, { recursive: true });
-    process.env.REDDIT_SAVED_CONFIG_DIR = join(tempDir, "reddit-cached");
+    process.env.REDDIT_CACHED_CONFIG_DIR = join(tempDir, "reddit-cached");
     setOutputMode(true, false, false);
   });
 
   afterEach(() => {
     setOutputMode(false, false, false);
-    process.env.REDDIT_SAVED_CONFIG_DIR = originalEnv.REDDIT_SAVED_CONFIG_DIR;
-    if (!originalEnv.REDDIT_SAVED_CONFIG_DIR) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+    process.env.REDDIT_CACHED_CONFIG_DIR = originalEnv.REDDIT_CACHED_CONFIG_DIR;
+    if (!originalEnv.REDDIT_CACHED_CONFIG_DIR) {
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     }
     if (originalEnv.REDDIT_CLIENT_SECRET !== undefined) {
       process.env.REDDIT_CLIENT_SECRET = originalEnv.REDDIT_CLIENT_SECRET;
@@ -711,15 +711,15 @@ describe("auth logout — human mode", () => {
   beforeEach(() => {
     tempDir = join(tmpdir(), `cli-auth-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(tempDir, { recursive: true });
-    process.env.REDDIT_SAVED_CONFIG_DIR = join(tempDir, "reddit-cached");
+    process.env.REDDIT_CACHED_CONFIG_DIR = join(tempDir, "reddit-cached");
     setOutputMode(true, false, false);
   });
 
   afterEach(() => {
     setOutputMode(false, false, false);
-    process.env.REDDIT_SAVED_CONFIG_DIR = originalEnv.REDDIT_SAVED_CONFIG_DIR;
-    if (!originalEnv.REDDIT_SAVED_CONFIG_DIR) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+    process.env.REDDIT_CACHED_CONFIG_DIR = originalEnv.REDDIT_CACHED_CONFIG_DIR;
+    if (!originalEnv.REDDIT_CACHED_CONFIG_DIR) {
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     }
     rmSync(tempDir, { recursive: true, force: true });
   });

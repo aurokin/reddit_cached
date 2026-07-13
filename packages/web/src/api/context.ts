@@ -41,7 +41,7 @@ export interface AppContext {
 }
 
 function resolveDbPath(): string {
-  const envPath = process.env.REDDIT_SAVED_DB;
+  const envPath = process.env.REDDIT_CACHED_DB;
   if (envPath) return resolve(envPath);
   return paths.database;
 }

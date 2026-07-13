@@ -12,7 +12,7 @@ import {
 } from "@reddit-cached/core";
 
 const originalFetch = globalThis.fetch;
-const originalConfigDir = process.env.REDDIT_SAVED_CONFIG_DIR;
+const originalConfigDir = process.env.REDDIT_CACHED_CONFIG_DIR;
 const originalDataDir = process.env.XDG_DATA_HOME;
 const originalClientSecret = process.env.REDDIT_CLIENT_SECRET;
 const originalTestMode = process.env.TEST_MODE;
@@ -60,9 +60,9 @@ describe("session auth fallback", () => {
 
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), "reddit-cached-web-auth-"));
-    process.env.REDDIT_SAVED_CONFIG_DIR = join(tempDir, "config");
+    process.env.REDDIT_CACHED_CONFIG_DIR = join(tempDir, "config");
     process.env.XDG_DATA_HOME = join(tempDir, "data");
-    process.env.REDDIT_SAVED_DB = join(tempDir, "test.db");
+    process.env.REDDIT_CACHED_DB = join(tempDir, "test.db");
 
     mkdirSync(paths.config, { recursive: true });
     seedSession();
@@ -72,11 +72,11 @@ describe("session auth fallback", () => {
   afterEach(() => {
     globalThis.fetch = originalFetch;
     closeAppContext();
-    Reflect.deleteProperty(process.env, "REDDIT_SAVED_DB");
+    Reflect.deleteProperty(process.env, "REDDIT_CACHED_DB");
     if (originalConfigDir === undefined) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     } else {
-      process.env.REDDIT_SAVED_CONFIG_DIR = originalConfigDir;
+      process.env.REDDIT_CACHED_CONFIG_DIR = originalConfigDir;
     }
     if (originalDataDir === undefined) {
       Reflect.deleteProperty(process.env, "XDG_DATA_HOME");

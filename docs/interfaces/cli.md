@@ -47,7 +47,7 @@ reddit-cached jobs uninstall-launchd [--label <name>]
   session over OAuth (same priority as the web app) — connecting the browser
   extension is enough to use `fetch` and `fetch context` from the CLI.
 - `auth login` prints the Reddit authorization URL by default. Pass
-  `--open-browser` or set `REDDIT_SAVED_OPEN_BROWSER=1` to launch it
+  `--open-browser` or set `REDDIT_CACHED_OPEN_BROWSER=1` to launch it
   automatically.
 - `auth logout` clears OAuth credentials only; it does not disconnect the web
   companion-extension session.

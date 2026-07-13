@@ -61,7 +61,7 @@ describe("fetch command", () => {
       }),
     );
 
-    process.env.REDDIT_SAVED_CONFIG_DIR = configDir;
+    process.env.REDDIT_CACHED_CONFIG_DIR = configDir;
     process.env.XDG_DATA_HOME = tempDir;
     process.env.REDDIT_CLIENT_SECRET = "test-secret";
   });
@@ -70,7 +70,7 @@ describe("fetch command", () => {
     restoreFetch();
     setOutputMode(false, false, false);
     // Restore env
-    for (const key of ["REDDIT_SAVED_CONFIG_DIR", "XDG_DATA_HOME", "REDDIT_CLIENT_SECRET"]) {
+    for (const key of ["REDDIT_CACHED_CONFIG_DIR", "XDG_DATA_HOME", "REDDIT_CLIENT_SECRET"]) {
       if (originalEnv[key] !== undefined) {
         process.env[key] = originalEnv[key];
       } else {

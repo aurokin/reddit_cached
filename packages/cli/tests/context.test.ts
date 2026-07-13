@@ -15,17 +15,17 @@ describe("createContext", () => {
   beforeEach(() => {
     // Redirect config dir to a temp dir so no real auth.json is found.
     tempConfigDir = mkdtempSync(join(tmpdir(), "cli-ctx-test-"));
-    process.env.REDDIT_SAVED_CONFIG_DIR = join(tempConfigDir, "reddit-cached");
+    process.env.REDDIT_CACHED_CONFIG_DIR = join(tempConfigDir, "reddit-cached");
     process.env.XDG_DATA_HOME = tempConfigDir;
   });
 
   afterEach(() => {
     setOutputMode(false, false, false);
     // Restore env
-    process.env.REDDIT_SAVED_CONFIG_DIR = originalEnv.REDDIT_SAVED_CONFIG_DIR;
+    process.env.REDDIT_CACHED_CONFIG_DIR = originalEnv.REDDIT_CACHED_CONFIG_DIR;
     process.env.XDG_DATA_HOME = originalEnv.XDG_DATA_HOME;
-    if (!originalEnv.REDDIT_SAVED_CONFIG_DIR) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+    if (!originalEnv.REDDIT_CACHED_CONFIG_DIR) {
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     }
     if (!originalEnv.XDG_DATA_HOME) process.env.XDG_DATA_HOME = undefined;
     if (dbPath) {
@@ -76,8 +76,8 @@ describe("createContext", () => {
   test("closes storage when tokenManager.load throws", async () => {
     dbPath = makeTempDb();
     // Create a corrupted auth.json to cause a parse error
-    const configDir = process.env.REDDIT_SAVED_CONFIG_DIR;
-    if (!configDir) throw new Error("Expected REDDIT_SAVED_CONFIG_DIR to be set");
+    const configDir = process.env.REDDIT_CACHED_CONFIG_DIR;
+    if (!configDir) throw new Error("Expected REDDIT_CACHED_CONFIG_DIR to be set");
     const { mkdirSync, writeFileSync } = await import("node:fs");
     mkdirSync(configDir, { recursive: true });
     writeFileSync(join(configDir, "auth.json"), "NOT VALID JSON {{{");
@@ -100,8 +100,8 @@ describe("createContext", () => {
   });
 
   test("creates apiClient and queue when needsApi and authenticated", async () => {
-    const configDir = process.env.REDDIT_SAVED_CONFIG_DIR;
-    if (!configDir) throw new Error("Expected REDDIT_SAVED_CONFIG_DIR to be set");
+    const configDir = process.env.REDDIT_CACHED_CONFIG_DIR;
+    if (!configDir) throw new Error("Expected REDDIT_CACHED_CONFIG_DIR to be set");
     const { mkdirSync: mkdirSyncFS, writeFileSync: writeFileSyncFS } = await import("node:fs");
     mkdirSyncFS(configDir, { recursive: true });
     writeFileSyncFS(

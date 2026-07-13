@@ -6,7 +6,7 @@ import { closeAppContext, getAppContext } from "@/api/context";
 import syncRoute from "@/api/routes/sync";
 import type { AuthProvider } from "@reddit-cached/core";
 
-const originalConfigDir = process.env.REDDIT_SAVED_CONFIG_DIR;
+const originalConfigDir = process.env.REDDIT_CACHED_CONFIG_DIR;
 
 function makeRequest(origin: string | null = "http://localhost:3001"): Request {
   return new Request("http://localhost/context", {
@@ -21,18 +21,18 @@ describe("sync context route", () => {
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), "reddit-cached-web-ctx-"));
     process.env.TEST_MODE = "1";
-    process.env.REDDIT_SAVED_DB = join(tempDir, "test.db");
-    process.env.REDDIT_SAVED_CONFIG_DIR = join(tempDir, "config");
+    process.env.REDDIT_CACHED_DB = join(tempDir, "test.db");
+    process.env.REDDIT_CACHED_CONFIG_DIR = join(tempDir, "config");
   });
 
   afterEach(() => {
     closeAppContext();
     process.env.TEST_MODE = undefined;
-    process.env.REDDIT_SAVED_DB = undefined;
+    process.env.REDDIT_CACHED_DB = undefined;
     if (originalConfigDir === undefined) {
-      Reflect.deleteProperty(process.env, "REDDIT_SAVED_CONFIG_DIR");
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
     } else {
-      process.env.REDDIT_SAVED_CONFIG_DIR = originalConfigDir;
+      process.env.REDDIT_CACHED_CONFIG_DIR = originalConfigDir;
     }
     if (tempDir) {
       rmSync(tempDir, { recursive: true, force: true });
