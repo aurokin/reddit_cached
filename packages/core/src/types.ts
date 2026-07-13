@@ -517,6 +517,9 @@ export interface ListOptions {
   createdAfter?: number;
   /** Unix timestamp in seconds; include rows created at or before this time */
   createdBefore?: number;
+  /** Epoch MILLISECONDS; include rows first fetched at or after this time
+   *  ("new to the archive" — unlike createdAfter, which is Reddit post age) */
+  fetchedAfter?: number;
   sort?: "created" | "score";
   sortDirection?: "asc" | "desc";
   limit?: number;

@@ -91,6 +91,11 @@ function buildListFilterParts(opts: ListOptions): { where: string[]; params: Bin
     where.push("p.created_utc <= ?");
     params.push(opts.createdBefore);
   }
+  if (opts.fetchedAfter !== undefined) {
+    // fetched_at is epoch ms — "new to the archive", not Reddit post age
+    where.push("p.fetched_at >= ?");
+    params.push(opts.fetchedAfter);
+  }
   if (opts.tag) {
     where.push(TAG_FILTER_SQL);
     params.push(opts.tag);

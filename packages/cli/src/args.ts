@@ -38,6 +38,7 @@ const COMMAND_WORDS = new Set([
   "research",
   "inbox",
   "jobs",
+  "today",
   "create",
   "rename",
   "delete",

@@ -256,6 +256,8 @@ export type { QualityReason } from "./filters/quality";
 // Research
 export { buildResearchBrief, renderResearchBrief } from "./research/brief";
 export type { ResearchBrief, ResearchOptions, ResearchSeed } from "./research/brief";
+export { buildTodayDigest, renderTodayDigest } from "./research/today";
+export type { TodayDigest, TodayDigestItem, TodayOptions } from "./research/today";
 
 // Monitor
 export { PerformanceMonitor, formatDuration, formatBytes } from "./monitor/performance";

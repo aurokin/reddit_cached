@@ -35,6 +35,8 @@ Commands:
   list                    Browse saved posts with filters
   research <query>        Deterministic markdown brief from local data
                           --limit N, --since/--until, --out <file>, --json
+  today                   What's new: activity, inbox, links, sync health
+                          --window 24h|7d|since-last-job, --out, --json
   status                  Show database statistics
   export                  Export posts to JSON/CSV/Markdown
   unsave                  Unsave posts on Reddit

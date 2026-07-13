@@ -20,6 +20,7 @@ import { researchCmd } from "./research";
 import { searchCmd } from "./search";
 import { statusCmd } from "./status";
 import { tagAdd, tagCreate, tagDelete, tagList, tagRemove, tagRename, tagShow } from "./tag";
+import { todayCmd } from "./today";
 import { unsaveCmd } from "./unsave";
 
 export type CommandHandler = (
@@ -38,6 +39,7 @@ export const COMMANDS: Record<string, CommandHandler> = {
   search: searchCmd,
   list: listCmd,
   research: researchCmd,
+  today: todayCmd,
   status: statusCmd,
   export: exportCmd,
   unsave: unsaveCmd,

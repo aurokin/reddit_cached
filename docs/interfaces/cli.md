@@ -18,6 +18,7 @@ reddit-saved inbox [--type comment_reply|post_reply|mention|message] [--unread] 
 reddit-saved search <query> [filters...]
 reddit-saved list [filters...]
 reddit-saved research <query> [--limit N] [--since d] [--until d] [--out f.md] [--json]
+reddit-saved today [--window 24h|7d|since-last-job] [--out f.md] [--json]
 reddit-saved export [--format json|csv|markdown] [filters...]
 reddit-saved status
 reddit-saved unsave [selectors...] [--dry-run] --confirm
@@ -74,6 +75,11 @@ reddit-saved jobs uninstall-launchd [--label <name>]
   seed (including captured context), outbound links, and subreddit counts.
   No AI, no network, no timestamps — identical database state renders an
   identical brief. Run `fetch context` first for richer threads.
+- `today` renders a deterministic "what's new" digest from local data only:
+  items new to the archive per origin (windowed on `fetched_at`), inbox
+  activity, top new links, sync health per origin, context-capture progress,
+  and the last pipeline run. `--window since-last-job` measures from the
+  start of the last complete `jobs run`.
 - `backup` writes deterministic JSONL (posts sharded by UTC year, plus tags,
   post_tags, and sync_state; derived tables excluded) into a git repository
   configured in `<configDir>/config.json`. Output is byte-identical for the

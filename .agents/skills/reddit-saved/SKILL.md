@@ -46,6 +46,9 @@ provenance), and `resumeCursors`. All commands emit JSON by default; pass
   whole window. Do NOT shortcut with a top-N `--sort score` slice — that
   yields only viral peaks and misses recurring themes and everyday texture.
   Top-score slices are for spot-checks only.
+- **"What's new / what happened lately?"** → `reddit-saved today`
+  (deterministic digest: new-to-archive items per origin, inbox activity,
+  top new links, sync health). `--window 7d` or `since-last-job`.
 - **"Did anyone reply / mention me?"** → `reddit-saved inbox` (local read;
   unread first). Filter with `--type comment_reply|post_reply|mention|message`
   and `--unread`. Sync first with `reddit-saved fetch inbox`.
