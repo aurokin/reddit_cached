@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("smoke", () => {
   test("home renders sync status and nav links", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByTestId("sync-status")).toBeVisible();
+    await expect(page.getByTestId("sync-status-header")).toBeVisible();
     await expect(page.getByTestId("nav-home")).toBeVisible();
     await expect(page.getByTestId("nav-browse")).toBeVisible();
     await expect(page.getByTestId("nav-links")).toBeVisible();
@@ -19,6 +19,9 @@ test.describe("smoke", () => {
     await expect(page.getByTestId("inbox-preview")).toBeVisible();
     // Seed marks the upvoted run saturated → amber warning copy
     await expect(page.getByText("Orphan detection saturated — run a full sync")).toBeVisible();
+    // Seeded archive has data and a healthy last job run → no onboarding, no banner
+    await expect(page.getByTestId("onboarding")).toHaveCount(0);
+    await expect(page.getByTestId("health-banner")).toHaveCount(0);
   });
 
   test("browse page renders filter panel and post list with seeded data", async ({ page }) => {

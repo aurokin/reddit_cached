@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { rmSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { SqliteAdapter, TagManager } from "@reddit-cached/core";
 import { setOutputMode } from "../src/output";
@@ -198,6 +198,130 @@ describe("status command", () => {
         saved: "saved_cursor_111",
         comments: "comments_cursor_333",
       });
+    } finally {
+      cap.restore();
+    }
+  });
+});
+
+describe("status warnings", () => {
+  let dbPath: string;
+  let adapter: SqliteAdapter;
+  let configDir: string;
+  let originalConfigDir: string | undefined;
+
+  beforeEach(() => {
+    dbPath = makeTempDb();
+    adapter = new SqliteAdapter(dbPath);
+    setOutputMode(false, false, false);
+    // Point auth files at an empty temp dir so host machine state can't leak in.
+    configDir = join(dirname(dbPath), "config");
+    mkdirSync(configDir, { recursive: true });
+    originalConfigDir = process.env.REDDIT_CACHED_CONFIG_DIR;
+    process.env.REDDIT_CACHED_CONFIG_DIR = configDir;
+  });
+
+  afterEach(() => {
+    adapter.close();
+    rmSync(dirname(dbPath), { recursive: true, force: true });
+    if (originalConfigDir) {
+      process.env.REDDIT_CACHED_CONFIG_DIR = originalConfigDir;
+    } else {
+      Reflect.deleteProperty(process.env, "REDDIT_CACHED_CONFIG_DIR");
+    }
+  });
+
+  function writeSessionFile(): void {
+    writeFileSync(
+      join(configDir, "session.json"),
+      JSON.stringify({
+        cookieHeader: "reddit_session=abc",
+        userAgent: "test-agent",
+        username: "tester",
+        modhash: "",
+        capturedAt: Date.now(),
+      }),
+    );
+  }
+
+  test("reports an errored pipeline run with failed step names", async () => {
+    writeSessionFile();
+    const runId = adapter.startJobRun("launchd");
+    adapter.finishJobRun(runId, {
+      status: "errored",
+      steps: [
+        { step: "fetch", ok: false, durationMs: 10, error: "session expired" },
+        { step: "inbox", ok: true, durationMs: 5 },
+      ],
+    });
+    adapter.close();
+
+    const { statusCmd } = await import("../src/commands/status");
+    const cap = captureConsole();
+    try {
+      await statusCmd({ db: dbPath }, []);
+      const stats = JSON.parse(cap.logs[0]);
+      expect(stats.warnings).toHaveLength(1);
+      expect(stats.warnings[0]).toContain("errored");
+      expect(stats.warnings[0]).toContain("failed steps: fetch");
+      expect(stats.warnings[0]).not.toContain("inbox");
+    } finally {
+      cap.restore();
+    }
+  });
+
+  test("warns when not authenticated", async () => {
+    adapter.close();
+
+    const { statusCmd } = await import("../src/commands/status");
+    const cap = captureConsole();
+    try {
+      await statusCmd({ db: dbPath }, []);
+      const stats = JSON.parse(cap.logs[0]);
+      expect(stats.warnings).toHaveLength(1);
+      expect(stats.warnings[0]).toContain("Not authenticated");
+    } finally {
+      cap.restore();
+    }
+  });
+
+  test("omits warnings when the session is connected and the last run succeeded", async () => {
+    writeSessionFile();
+    const runId = adapter.startJobRun("manual");
+    adapter.finishJobRun(runId, {
+      status: "complete",
+      steps: [{ step: "fetch", ok: true, durationMs: 10 }],
+    });
+    adapter.close();
+
+    const { statusCmd } = await import("../src/commands/status");
+    const cap = captureConsole();
+    try {
+      await statusCmd({ db: dbPath }, []);
+      const stats = JSON.parse(cap.logs[0]);
+      expect(stats.warnings).toBeUndefined();
+    } finally {
+      cap.restore();
+    }
+  });
+
+  test("human mode prints a prominent warnings section", async () => {
+    setOutputMode(true, false, false);
+    const runId = adapter.startJobRun("launchd");
+    adapter.finishJobRun(runId, {
+      status: "errored",
+      steps: [{ step: "backup", ok: false, durationMs: 10, error: "push failed" }],
+    });
+    adapter.close();
+
+    const { statusCmd } = await import("../src/commands/status");
+    const cap = captureConsole();
+    try {
+      await statusCmd({ db: dbPath }, []);
+      const output = cap.logs.join("\n");
+      expect(output).toContain("Warnings");
+      expect(output).toContain("failed steps: backup");
+      expect(output).toContain("Not authenticated");
     } finally {
       cap.restore();
     }

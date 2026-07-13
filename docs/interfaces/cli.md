@@ -125,3 +125,6 @@ reddit-cached jobs uninstall-systemd [--unit-name <name>]
   provenance in the `sync_runs` table; `status` reports the latest run per
   origin, including saturation (Reddit exposes only the newest ~1000 items per
   listing).
+- `status` also derives a `warnings` array (last pipeline run errored with its
+  failed step names; not authenticated / session disconnected) from existing
+  state — shown prominently at the top in `--human` mode.

@@ -1,4 +1,4 @@
-import { SyncStatus } from "@/components/SyncStatus";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { ActivityOverview } from "@/components/dashboard/ActivityOverview";
 import { ContextProgressCard } from "@/components/dashboard/ContextProgressCard";
 import { InboxPreview } from "@/components/dashboard/InboxPreview";
@@ -22,10 +22,24 @@ export function HomePage() {
 
   const stats = sync.data?.stats;
 
+  // First run: the archive is empty — show the setup checklist instead of a
+  // dashboard full of zeroes.
+  if (stats && stats.totalPosts + stats.totalComments === 0) {
+    return <OnboardingChecklist />;
+  }
+
+  // A full sync is what establishes the orphan-detection baseline; if no
+  // origin has ever completed one, nudge before the per-origin cards.
+  const noFullSyncAnywhere =
+    !!runs.data &&
+    !!stats &&
+    ORIGINS.every(
+      (origin) =>
+        (runs.data.items.find((r) => r.origin === origin)?.lastCompleteFullAt ?? null) === null,
+    );
+
   return (
     <div className="flex flex-col gap-6">
-      <SyncStatus />
-
       {auth.data && auth.data.authenticated === false && !auth.data.testMode ? (
         <div className="rounded-lg border border-border bg-card p-4 text-sm">
           <p className="mb-2 font-medium">Not signed in to Reddit</p>
@@ -42,6 +56,16 @@ export function HomePage() {
       ) : null}
 
       <TodayStrip />
+
+      {noFullSyncAnywhere ? (
+        <p
+          className="rounded-md border border-amber-500/60 bg-card px-3 py-2 text-sm text-amber-700 dark:text-amber-400"
+          data-testid="full-sync-callout"
+        >
+          No origin has completed a full sync yet — run one per origin below so orphan detection has
+          a baseline to compare against.
+        </p>
+      ) : null}
 
       <section
         className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"

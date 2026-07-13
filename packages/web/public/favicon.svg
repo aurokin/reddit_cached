@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Bookmark glyph in the app's primary orange; solid fill reads on light and dark tabs. -->
+  <path
+    fill="hsl(22 92% 54%)"
+    d="M6.5 2h11A1.5 1.5 0 0 1 19 3.5V22a.75.75 0 0 1-1.16.63L12 18.6l-5.84 4.03A.75.75 0 0 1 5 22V3.5A1.5 1.5 0 0 1 6.5 2Z"
+  />
+</svg>

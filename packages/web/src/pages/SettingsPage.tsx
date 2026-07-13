@@ -53,6 +53,12 @@ export function SettingsPage() {
 
       <section className="flex flex-col gap-3">
         <h2 className="text-base font-semibold">Reddit account</h2>
+        <p className="text-sm text-muted-foreground">
+          Reddit Cached signs in with the same browser session you use on reddit.com, forwarded by
+          the companion extension — no password is stored here. Reddit occasionally expires that
+          session; when it does, just open reddit.com signed in and the extension re-forwards it
+          automatically. If syncing was disconnected on purpose, use Reconnect below.
+        </p>
         {auth.isLoading ? (
           <p className="text-sm">Checking status…</p>
         ) : auth.data?.authenticated && auth.data.mode === "session" ? (
@@ -105,8 +111,8 @@ export function SettingsPage() {
         ) : session.data?.blocked ? (
           <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
             <p className="text-sm">
-              Extension sync is disconnected. Use Reconnect to allow the extension to hand your
-              reddit.com session back to the app.
+              Extension sync is disconnected, so scheduled syncs are paused. Your archive is safe —
+              use Reconnect to let the extension hand your reddit.com session back to the app.
             </p>
             <Button asChild>
               <Link to="/login">Reconnect</Link>

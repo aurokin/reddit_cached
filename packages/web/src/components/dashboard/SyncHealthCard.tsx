@@ -29,9 +29,11 @@ export function SyncHealthCard({
 }) {
   const stream = useSyncStream();
   const lastRun = summary?.lastRun ?? null;
-  // Saturation means orphan detection hit Reddit's ~1000-item window; no full
-  // sync means orphan state has never been established at all.
-  const warn = lastRun !== null && (lastRun.saturated || summary?.lastCompleteFullAt === null);
+  // No complete full sync (including never synced at all) means orphan state
+  // has never been established — guide the user to a full baseline first.
+  const needsFull = (summary?.lastCompleteFullAt ?? null) === null;
+  // Saturation means orphan detection hit Reddit's ~1000-item window.
+  const warn = lastRun !== null && (lastRun.saturated || needsFull);
 
   return (
     <Card
@@ -75,10 +77,10 @@ export function SyncHealthCard({
         variant="outline"
         className="mt-auto"
         disabled={stream.isRunning}
-        onClick={() => stream.start(origin, false)}
+        onClick={() => stream.start(origin, needsFull)}
         data-testid={`sync-start-${origin}`}
       >
-        Sync
+        {needsFull ? "Full sync" : "Sync"}
       </Button>
     </Card>
   );

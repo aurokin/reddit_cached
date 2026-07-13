@@ -93,6 +93,7 @@ const inboxRoute = createRoute({
   component: InboxPage,
   validateSearch: (search: Record<string, unknown>): InboxFilters => {
     const type = search.type;
+    const page = Number(search.page);
     return {
       type:
         type === "comment_reply" ||
@@ -102,6 +103,7 @@ const inboxRoute = createRoute({
           ? (type as InboxItemType)
           : undefined,
       unread: search.unread === true || search.unread === "true" ? true : undefined,
+      page: Number.isInteger(page) && page > 1 ? page : undefined,
     };
   },
 });
