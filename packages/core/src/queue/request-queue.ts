@@ -88,7 +88,7 @@ export interface RequestQueueStatus {
  * Request queue with circuit breaker, token-bucket rate limiting,
  * exponential backoff, priority ordering, and offline buffering.
  *
- * Uses native fetch() + AbortSignal.timeout() instead of Obsidian's requestUrl.
+ * Uses native fetch() + AbortSignal.timeout().
  */
 export class RequestQueue {
   private config: RequestQueueConfig;

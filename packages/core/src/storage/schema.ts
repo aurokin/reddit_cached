@@ -144,7 +144,7 @@ export function initializeSchema(db: Database): void {
     }
     if (existing && existing.version < SCHEMA_VERSION) {
       throw new Error(
-        `Database schema (v${existing.version}) is older than code (v${SCHEMA_VERSION}). Run the migration tool first.`,
+        `Database schema (v${existing.version}) is older than code (v${SCHEMA_VERSION}). No automatic migration exists yet — back up the database file, then export local tags before recreating it with a fresh sync.`,
       );
     }
   }

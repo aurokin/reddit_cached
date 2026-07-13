@@ -265,7 +265,7 @@ export interface PreviewResult {
 }
 
 // ============================================================================
-// Request / Network Types (replaces Obsidian's RequestUrlParam/Response)
+// Request / Network Types
 // ============================================================================
 
 export interface RequestParams {

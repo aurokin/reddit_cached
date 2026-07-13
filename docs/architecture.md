@@ -208,11 +208,8 @@ local database instead of repeatedly hitting Reddit's slow paginated API.
 - Session wins when present.
 - OAuth remains the fallback.
 
-## Appendix D: Upstream Implementation Sources
+## Appendix D: Provenance
 
-- `reference/saved-reddit-exporter/src/request-queue.ts`
-- `reference/saved-reddit-exporter/src/api-client.ts`
-- `reference/saved-reddit-exporter/src/types.ts`
-- `reference/saved-reddit-exporter/src/auth.ts`
-- `reference/saved-reddit-exporter/src/filters.ts`
-- `reference/saved-reddit-exporter/src/constants.ts`
+The request queue, API client, filters, and OAuth flow were originally ported
+from a prior Obsidian plugin ("saved-reddit-exporter"). That reference source
+is not part of this repository; the ported code here is the maintained version.

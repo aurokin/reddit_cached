@@ -30,7 +30,7 @@ Firefox unsigned extensions are temporary (cleared on browser restart). For a
 persistent install, use Firefox Developer Edition or Nightly with
 `xpinstall.signatures.required = false` in `about:config`.
 
-1. Run `npm run build` in `packages/extension`.
+1. Run `bun run build` in `packages/extension`.
 2. Open `about:debugging#/runtime/this-firefox`.
 3. Click **Load Temporary Add-on…**.
 4. Select `packages/extension/dist/firefox/manifest.json`.

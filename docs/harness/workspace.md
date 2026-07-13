@@ -29,16 +29,21 @@ bun run verify
 `bun run verify` runs the authoritative checks in this order:
 
 ```bash
+bun run lint
 bun run typecheck
 bun test
 bun run --filter @reddit-saved/web build
 cd packages/cli && bun run src/index.ts --help
 ```
 
+CI (`.github/workflows/ci.yml`) runs this same routine on every push and pull
+request to `main`, plus the web e2e smoke suite as a second job.
+
 ## What Each Check Proves
 
 | Check | What it proves |
 |---|---|
+| `bun run lint` | Biome lint and formatting rules hold across the workspace |
 | `bun run typecheck` | Cross-package TypeScript surfaces still line up |
 | `bun test` | The shared workspace behavior is intact under the documented test harness |
 | `bun run --filter @reddit-saved/web build` | The web package can build its production SPA bundle |
