@@ -71,6 +71,10 @@ Commands:
                           --interval-seconds N (default 3600), --steps,
                           --label <name>, --no-load
   jobs uninstall-launchd  Unload and remove the launchd agent
+  jobs install-systemd    Schedule the pipeline via systemd user units (Linux)
+                          --interval-seconds N (default 3600), --steps,
+                          --unit-name <name>, --no-enable
+  jobs uninstall-systemd  Disable and remove the systemd user units
 
 List/search/export options:
   --hide-low-quality      Exclude deleted/removed content, bot posts, and

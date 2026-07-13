@@ -47,6 +47,13 @@ describe("parseArgs", () => {
     expect(result.flags).toEqual({ unread: true, type: "mention" });
   });
 
+  test("parses jobs systemd subcommands with boolean no-enable flag", () => {
+    const install = parseArgs(["jobs", "install-systemd", "--no-enable", "--unit-name", "x"]);
+    expect(install.command).toEqual(["jobs", "install-systemd"]);
+    expect(install.flags).toEqual({ "no-enable": true, "unit-name": "x" });
+    expect(parseArgs(["jobs", "uninstall-systemd"]).command).toEqual(["jobs", "uninstall-systemd"]);
+  });
+
   test("bare fetch still parses with flags after the subcommand was added", () => {
     const result = parseArgs(["fetch", "--all", "--full"]);
     expect(result.command).toEqual(["fetch"]);

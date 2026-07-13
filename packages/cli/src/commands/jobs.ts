@@ -30,7 +30,9 @@ import {
   printProgress,
   printSection,
   printTable,
+  printWarning,
 } from "../output";
+import { DEFAULT_JOBS_UNIT_NAME, buildJobsServiceUnit, buildJobsTimerUnit } from "../systemd";
 import { runBackupSync } from "./backup";
 import { type OriginFetchResult, VALID_TYPES, runFetchForOrigin } from "./fetch";
 
@@ -312,6 +314,134 @@ export async function jobsUninstallLaunchdCmd(
     printSection("launchd Agent Removed", [
       ["Label", label],
       ["Plist", existed ? "removed" : "was not installed"],
+    ]);
+    console.log();
+  } else {
+    printJson(output);
+  }
+}
+
+function requireLinux(): void {
+  if (process.platform !== "linux") {
+    printError("systemd scheduling is only available on Linux.", "UNSUPPORTED_PLATFORM");
+    process.exit(1);
+  }
+}
+
+function systemdUnitPaths(unitName: string): { servicePath: string; timerPath: string } {
+  const unitDir = join(homedir(), ".config", "systemd", "user");
+  return {
+    servicePath: join(unitDir, `${unitName}.service`),
+    timerPath: join(unitDir, `${unitName}.timer`),
+  };
+}
+
+/** Run a systemctl --user command, returning whether it succeeded. Failures
+ *  are expected when the user has no systemd session (e.g. bare SSH). */
+async function systemctlUser(args: string[]): Promise<boolean> {
+  const proc = Bun.spawn(["systemctl", "--user", ...args], {
+    stdout: "ignore",
+    stderr: "pipe",
+  });
+  const code = await proc.exited;
+  if (code !== 0) {
+    const stderr = await new Response(proc.stderr).text();
+    printWarning(`systemctl --user ${args.join(" ")} failed (exit ${code}): ${stderr.trim()}`);
+    return false;
+  }
+  return true;
+}
+
+export async function jobsInstallSystemdCmd(
+  flags: Record<string, string | boolean>,
+  _positionals: string[],
+): Promise<void> {
+  requireLinux();
+
+  const unitName = flagStr(flags, "unit-name") ?? DEFAULT_JOBS_UNIT_NAME;
+  const intervalSeconds = flagInt(flags, "interval-seconds") ?? DEFAULT_JOBS_INTERVAL_SECONDS;
+  const steps = flagStr(flags, "steps") ? parseJobSteps(flagStr(flags, "steps")) : undefined;
+  const enable = !flagBool(flags, "no-enable");
+
+  const execStart = resolveJobsProgramArguments({
+    execPath: process.execPath,
+    mainPath: Bun.main,
+    steps,
+    trigger: "systemd",
+  });
+  const service = buildJobsServiceUnit({
+    description: "Reddit Cached jobs pipeline",
+    execStartArguments: execStart,
+  });
+  const timer = buildJobsTimerUnit({
+    description: "Run the Reddit Cached jobs pipeline periodically",
+    intervalSeconds,
+    unitName,
+  });
+
+  const { servicePath, timerPath } = systemdUnitPaths(unitName);
+  await mkdir(dirname(servicePath), { recursive: true });
+  await writeFile(servicePath, service);
+  await writeFile(timerPath, timer);
+
+  // stdout/stderr are captured by the journal — no log files to set up.
+  const journalHint = `journalctl --user -u ${unitName}.service`;
+
+  let enabled = false;
+  if (enable) {
+    // Failures are tolerated with a warning: the units are on disk either
+    // way, and the user may lack a systemd user session right now.
+    const reloaded = await systemctlUser(["daemon-reload"]);
+    if (reloaded) {
+      enabled = await systemctlUser(["enable", "--now", `${unitName}.timer`]);
+    }
+  }
+
+  const output = {
+    unitName,
+    servicePath,
+    timerPath,
+    enabled,
+    intervalSeconds,
+    execStart,
+    journalHint,
+  };
+  if (isHumanMode()) {
+    printSection("systemd Timer Installed", [
+      ["Unit", unitName],
+      ["Service", servicePath],
+      ["Timer", timerPath],
+      ["Interval", `${intervalSeconds}s`],
+      ["Enabled", enabled ? "yes" : "no"],
+      ["Logs", journalHint],
+    ]);
+    console.log();
+  } else {
+    printJson(output);
+  }
+}
+
+export async function jobsUninstallSystemdCmd(
+  flags: Record<string, string | boolean>,
+  _positionals: string[],
+): Promise<void> {
+  requireLinux();
+
+  const unitName = flagStr(flags, "unit-name") ?? DEFAULT_JOBS_UNIT_NAME;
+  const { servicePath, timerPath } = systemdUnitPaths(unitName);
+  const existed = existsSync(servicePath) || existsSync(timerPath);
+
+  // Ignore systemctl failures throughout — the goal is removing the files.
+  await systemctlUser(["disable", "--now", `${unitName}.timer`]);
+  await rm(servicePath, { force: true });
+  await rm(timerPath, { force: true });
+  await systemctlUser(["daemon-reload"]);
+
+  const output = { unitName, servicePath, timerPath, removed: existed };
+  if (isHumanMode()) {
+    printSection("systemd Timer Removed", [
+      ["Unit", unitName],
+      ["Units", existed ? "removed" : "were not installed"],
     ]);
     console.log();
   } else {

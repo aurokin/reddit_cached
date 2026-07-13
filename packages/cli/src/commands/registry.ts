@@ -14,7 +14,14 @@ import { fetchContextCmd } from "./fetch-context";
 import { fetchInboxCmd } from "./fetch-inbox";
 import { importCmd } from "./import";
 import { inboxCmd } from "./inbox";
-import { jobsInstallLaunchdCmd, jobsRunCmd, jobsStatusCmd, jobsUninstallLaunchdCmd } from "./jobs";
+import {
+  jobsInstallLaunchdCmd,
+  jobsInstallSystemdCmd,
+  jobsRunCmd,
+  jobsStatusCmd,
+  jobsUninstallLaunchdCmd,
+  jobsUninstallSystemdCmd,
+} from "./jobs";
 import { linksRebuildCmd, linksSearchCmd, linksTopCmd } from "./links";
 import { listCmd } from "./list";
 import { researchCmd } from "./research";
@@ -62,4 +69,6 @@ export const COMMANDS: Record<string, CommandHandler> = {
   "jobs status": jobsStatusCmd,
   "jobs install-launchd": jobsInstallLaunchdCmd,
   "jobs uninstall-launchd": jobsUninstallLaunchdCmd,
+  "jobs install-systemd": jobsInstallSystemdCmd,
+  "jobs uninstall-systemd": jobsUninstallSystemdCmd,
 };
