@@ -87,11 +87,15 @@ export async function commitBackup(
   if (remoteUsable && opts.remote) {
     // A brand-new remote branch may not exist yet — tolerate pull failures
     // from "no upstream", but surface real divergence errors.
+    // "no such ref was fetched" is what git says when pulling a branch the
+    // (e.g. freshly created, empty) remote does not have yet.
     const pull = await runGit(repoPath, ["pull", "--ff-only", opts.remote]);
     if (pull.code === 0) {
       result.pulled = true;
     } else if (
-      !/no tracking information|couldn't find remote ref|does not appear/i.test(pull.stderr)
+      !/no tracking information|couldn't find remote ref|does not appear|no such ref was fetched/i.test(
+        pull.stderr,
+      )
     ) {
       throw new Error(`git pull --ff-only failed: ${pull.stderr || pull.stdout}`);
     }
