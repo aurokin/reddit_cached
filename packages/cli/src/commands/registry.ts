@@ -13,6 +13,7 @@ import { fetchCmd } from "./fetch";
 import { fetchContextCmd } from "./fetch-context";
 import { fetchInboxCmd } from "./fetch-inbox";
 import { inboxCmd } from "./inbox";
+import { jobsRunCmd, jobsStatusCmd } from "./jobs";
 import { linksRebuildCmd, linksSearchCmd, linksTopCmd } from "./links";
 import { listCmd } from "./list";
 import { researchCmd } from "./research";
@@ -53,4 +54,6 @@ export const COMMANDS: Record<string, CommandHandler> = {
   "backup init": backupInitCmd,
   "backup sync": backupSyncCmd,
   "backup status": backupStatusCmd,
+  "jobs run": jobsRunCmd,
+  "jobs status": jobsStatusCmd,
 };

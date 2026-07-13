@@ -28,6 +28,8 @@ reddit-saved links rebuild
 reddit-saved backup init --repo <path> [--remote <name>] [--push]
 reddit-saved backup sync [--push] [--no-git]
 reddit-saved backup status
+reddit-saved jobs run [--steps fetch,context,inbox,backup] [--limit N] [--trigger <name>]
+reddit-saved jobs status [--limit N]
 ```
 
 ## Notes
@@ -76,6 +78,13 @@ reddit-saved backup status
   same database state, so an unchanged sync produces no commit. Commits are
   made with GPG signing disabled; `--push` (or `push: true` in config) pushes
   to the configured remote.
+- `jobs run` executes the full sync pipeline sequentially (fetch all origins →
+  capture context → sync inbox → backup); a failing step is recorded in the
+  `job_runs` table but does not abort later steps, and the exit code is 1 if
+  any step failed. The backup step is skipped (still ok) when no backup repo
+  is configured. A `.reddit-jobs.lock` file next to the database makes an
+  overlapping run exit 0 with `{"skipped":true}` instead of racing; locks
+  older than two hours are reclaimed as stale.
 - Each fetch writes a per-origin resume checkpoint
   (`.reddit-import-checkpoint.<origin>.json` next to the database) and records
   provenance in the `sync_runs` table; `status` reports the latest run per

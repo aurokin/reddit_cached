@@ -16,6 +16,9 @@ import type {
   ContentOrigin,
   DbStats,
   InboxItemRow,
+  JobRunStatus,
+  JobRunSummary,
+  JobStepResult,
   ListInboxOptions,
   ListOptions,
   PostRow,
@@ -709,6 +712,101 @@ export class SqliteAdapter implements StorageAdapter {
       },
       lastCompleteFullAt: lastFullByOrigin.get(r.origin) ?? null,
     }));
+  }
+
+  // --------------------------------------------------------------------------
+  // Job run provenance
+  // --------------------------------------------------------------------------
+
+  /** Record the start of a pipeline run. Returns the run id for finishJobRun. */
+  startJobRun(trigger: string): number {
+    const result = this.db
+      .query(
+        "INSERT INTO job_runs (started_at, status, trigger) VALUES (?, 'running', ?) RETURNING id",
+      )
+      .get(Date.now(), trigger) as { id: number };
+    return result.id;
+  }
+
+  finishJobRun(
+    id: number,
+    outcome: { status: "complete" | "errored"; steps: JobStepResult[] },
+  ): void {
+    this.db.run("UPDATE job_runs SET finished_at = ?, status = ?, steps_json = ? WHERE id = ?", [
+      Date.now(),
+      outcome.status,
+      JSON.stringify(outcome.steps),
+      id,
+    ]);
+  }
+
+  /** Recent pipeline runs, newest first. Corrupt steps_json degrades to []. */
+  getJobRunSummaries(limit = 10): JobRunSummary[] {
+    const rows = this.db
+      .query(
+        `SELECT id, started_at, finished_at, status, trigger, steps_json
+         FROM job_runs ORDER BY started_at DESC, id DESC LIMIT ?`,
+      )
+      .all(limit) as Array<{
+      id: number;
+      started_at: number;
+      finished_at: number | null;
+      status: JobRunStatus;
+      trigger: string;
+      steps_json: string;
+    }>;
+
+    return rows.map((r) => {
+      let steps: JobStepResult[] = [];
+      try {
+        const parsed = JSON.parse(r.steps_json);
+        if (Array.isArray(parsed)) steps = parsed;
+      } catch {
+        // tolerate corrupt provenance — the run row itself is still useful
+      }
+      return {
+        id: r.id,
+        startedAt: r.started_at,
+        finishedAt: r.finished_at,
+        status: r.status,
+        trigger: r.trigger,
+        steps,
+      };
+    });
+  }
+
+  /** Most recent complete pipeline run, or null. */
+  getLastCompleteJobRun(): JobRunSummary | null {
+    const row = this.db
+      .query(
+        `SELECT id, started_at, finished_at, status, trigger, steps_json
+         FROM job_runs WHERE status = 'complete'
+         ORDER BY started_at DESC, id DESC LIMIT 1`,
+      )
+      .get() as {
+      id: number;
+      started_at: number;
+      finished_at: number | null;
+      status: JobRunStatus;
+      trigger: string;
+      steps_json: string;
+    } | null;
+    if (!row) return null;
+    let steps: JobStepResult[] = [];
+    try {
+      const parsed = JSON.parse(row.steps_json);
+      if (Array.isArray(parsed)) steps = parsed;
+    } catch {
+      // tolerate corrupt provenance
+    }
+    return {
+      id: row.id,
+      startedAt: row.started_at,
+      finishedAt: row.finished_at,
+      status: row.status,
+      trigger: row.trigger,
+      steps,
+    };
   }
 
   // --------------------------------------------------------------------------

@@ -29,7 +29,7 @@ import {
   printWarning,
 } from "../output";
 
-const VALID_TYPES = new Set(["saved", "upvoted", "submitted", "comments"]);
+export const VALID_TYPES = new Set(["saved", "upvoted", "submitted", "comments"]);
 
 interface SyncStateStore {
   getSyncState(key: string): string | null;
@@ -56,7 +56,7 @@ function isCheckpointCompatible(
   return checkpoint.contentOrigin === contentOrigin && checkpoint.isFull === isFull;
 }
 
-interface OriginFetchResult {
+export interface OriginFetchResult {
   type: string;
   status: SyncRunStatus;
   fetched: number;
@@ -71,8 +71,9 @@ interface OriginFetchResult {
 }
 
 /** Run one origin's fetch end-to-end: checkpoint resume, page fetch, store,
- *  cursor advance, orphan detection, and sync_runs provenance recording. */
-async function runFetchForOrigin(
+ *  cursor advance, orphan detection, and sync_runs provenance recording.
+ *  Exported for the jobs pipeline's fetch step. */
+export async function runFetchForOrigin(
   ctx: CliContext,
   typeStr: string,
   opts: { isFull: boolean; limit?: number; dbPath?: string },

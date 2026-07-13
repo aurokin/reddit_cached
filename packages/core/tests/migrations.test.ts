@@ -153,6 +153,24 @@ describe("migrations", () => {
     db.close();
   });
 
+  test("v6 creates job_runs on a pre-v6 database", () => {
+    const db = new Database(dbPath);
+    runMigrations(db, MIGRATIONS.slice(0, 5));
+    expect(getSchemaVersion(db)).toBe(5);
+    const before = db
+      .query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'job_runs'")
+      .get();
+    expect(before).toBeNull();
+
+    runMigrations(db);
+    const cols = db.query("PRAGMA table_info(job_runs)").all() as { name: string }[];
+    const names = cols.map((c) => c.name);
+    for (const expected of ["id", "started_at", "finished_at", "status", "trigger", "steps_json"]) {
+      expect(names).toContain(expected);
+    }
+    db.close();
+  });
+
   test("initializeSchema throws when the database is newer than the code", () => {
     const db = new Database(dbPath);
     initializeSchema(db);

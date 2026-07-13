@@ -11,7 +11,7 @@ import {
   writeRepoScaffolding,
 } from "@reddit-saved/core";
 import { flagBool, flagStr } from "../args";
-import { createContext } from "../context";
+import { type CliContext, createContext } from "../context";
 import { isHumanMode, printError, printJson, printSection } from "../output";
 
 async function requireBackupConfig(flags: Record<string, string | boolean>): Promise<BackupConfig> {
@@ -65,6 +65,47 @@ export async function backupInitCmd(
   }
 }
 
+export interface BackupSyncOutput {
+  repoPath: string;
+  backupHash: string;
+  written: string[];
+  removed: string[];
+  unchangedFiles: number;
+  pulled: boolean;
+  committed: boolean;
+  pushed: boolean;
+}
+
+/** Write the backup and (unless skipGit) commit/push it. Shared by the
+ *  backup sync command and the jobs pipeline's backup step. */
+export async function runBackupSync(
+  ctx: CliContext,
+  backup: BackupConfig,
+  opts: { push: boolean; skipGit?: boolean },
+): Promise<BackupSyncOutput> {
+  const result = await writeBackup(ctx.storage, backup.repoPath);
+
+  let git = { pulled: false, committed: false, pushed: false };
+  if (!opts.skipGit) {
+    const stats = ctx.storage.getStats();
+    const total = stats.totalPosts + stats.totalComments + stats.contextCount;
+    git = await commitBackup(backup.repoPath, {
+      message: `backup: ${total} items (${result.manifest.backupHash.slice(0, 12)})`,
+      remote: backup.remote,
+      push: opts.push,
+    });
+  }
+
+  return {
+    repoPath: backup.repoPath,
+    backupHash: result.manifest.backupHash,
+    written: result.written,
+    removed: result.removed,
+    unchangedFiles: result.unchanged.length,
+    ...git,
+  };
+}
+
 export async function backupSyncCmd(
   flags: Record<string, string | boolean>,
   _positionals: string[],
@@ -75,39 +116,21 @@ export async function backupSyncCmd(
 
   const ctx = await createContext({ dbPath: flagStr(flags, "db") });
   try {
-    const result = await writeBackup(ctx.storage, backup.repoPath);
-
-    let git = { pulled: false, committed: false, pushed: false };
-    if (!skipGit) {
-      const stats = ctx.storage.getStats();
-      const total = stats.totalPosts + stats.totalComments + stats.contextCount;
-      git = await commitBackup(backup.repoPath, {
-        message: `backup: ${total} items (${result.manifest.backupHash.slice(0, 12)})`,
-        remote: backup.remote,
-        push,
-      });
-    }
-
-    const output = {
-      repoPath: backup.repoPath,
-      backupHash: result.manifest.backupHash,
-      written: result.written,
-      removed: result.removed,
-      unchangedFiles: result.unchanged.length,
-      ...git,
-    };
+    const output = await runBackupSync(ctx, backup, { push, skipGit });
 
     if (isHumanMode()) {
       printSection("Backup Sync", [
         ["Repository", backup.repoPath],
-        ["Files written", result.written.length],
-        ["Files unchanged", result.unchanged.length],
-        ...(result.removed.length > 0
-          ? [["Files removed", result.removed.length] as [string, unknown]]
+        ["Files written", output.written.length],
+        ["Files unchanged", output.unchangedFiles],
+        ...(output.removed.length > 0
+          ? [["Files removed", output.removed.length] as [string, unknown]]
           : []),
-        ["Committed", skipGit ? "skipped (--no-git)" : git.committed ? "yes" : "no changes"],
-        ...(push && !skipGit ? [["Pushed", git.pushed ? "yes" : "no"] as [string, unknown]] : []),
-        ["Backup hash", result.manifest.backupHash.slice(0, 12)],
+        ["Committed", skipGit ? "skipped (--no-git)" : output.committed ? "yes" : "no changes"],
+        ...(push && !skipGit
+          ? [["Pushed", output.pushed ? "yes" : "no"] as [string, unknown]]
+          : []),
+        ["Backup hash", output.backupHash.slice(0, 12)],
       ]);
       console.log();
     } else {

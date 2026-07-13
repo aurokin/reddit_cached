@@ -680,6 +680,82 @@ describe("sync run provenance", () => {
     expect(summary.lastRun?.orphaned).toBeNull();
     expect(summary.lastRun?.saturated).toBe(true);
   });
+
+  test("inbox origin round-trips through sync run provenance", () => {
+    const id = adapter.startSyncRun("inbox", "incremental");
+    adapter.finishSyncRun(id, { status: "complete", fetched: 12 });
+
+    const [summary] = adapter.getSyncRunSummaries();
+    expect(summary.origin).toBe("inbox");
+    expect(summary.lastRun?.fetched).toBe(12);
+  });
+});
+
+describe("job run provenance", () => {
+  let dbPath: string;
+  let adapter: SqliteAdapter;
+
+  beforeEach(() => {
+    dbPath = makeTempDb();
+    adapter = new SqliteAdapter(dbPath);
+  });
+
+  afterEach(() => {
+    adapter.close();
+    rmSync(dirname(dbPath), { recursive: true, force: true });
+  });
+
+  test("startJobRun/finishJobRun round-trip with step outcomes", () => {
+    const id = adapter.startJobRun("manual");
+    expect(id).toBeGreaterThan(0);
+
+    const steps = [
+      { step: "fetch", ok: true, durationMs: 1200 },
+      { step: "backup", ok: true, durationMs: 5, skipped: "not-configured" },
+    ];
+    adapter.finishJobRun(id, { status: "complete", steps });
+
+    const [run] = adapter.getJobRunSummaries();
+    expect(run.status).toBe("complete");
+    expect(run.trigger).toBe("manual");
+    expect(run.finishedAt).not.toBeNull();
+    expect(run.steps).toEqual(steps);
+  });
+
+  test("summaries are newest first and respect the limit", () => {
+    for (let i = 0; i < 3; i++) {
+      const id = adapter.startJobRun(`run${i}`);
+      adapter.finishJobRun(id, { status: "complete", steps: [] });
+    }
+
+    const runs = adapter.getJobRunSummaries(2);
+    expect(runs).toHaveLength(2);
+    expect(runs[0].trigger).toBe("run2");
+    expect(runs[1].trigger).toBe("run1");
+  });
+
+  test("corrupt steps_json degrades to an empty step list", () => {
+    const id = adapter.startJobRun("manual");
+    adapter.getDb().run("UPDATE job_runs SET steps_json = 'not json' WHERE id = ?", [id]);
+
+    const [run] = adapter.getJobRunSummaries();
+    expect(run.steps).toEqual([]);
+  });
+
+  test("getLastCompleteJobRun skips errored and running rows", () => {
+    const good = adapter.startJobRun("early");
+    adapter.finishJobRun(good, { status: "complete", steps: [] });
+    const bad = adapter.startJobRun("later");
+    adapter.finishJobRun(bad, { status: "errored", steps: [] });
+    adapter.startJobRun("in-flight");
+
+    const last = adapter.getLastCompleteJobRun();
+    expect(last?.trigger).toBe("early");
+  });
+
+  test("getLastCompleteJobRun returns null when nothing completed", () => {
+    expect(adapter.getLastCompleteJobRun()).toBeNull();
+  });
 });
 
 describe("thread context storage", () => {

@@ -56,6 +56,10 @@ provenance), and `resumeCursors`. All commands emit JSON by default; pass
 - **Refresh the cache** → `reddit-saved fetch --all` (all four origins,
   incremental) or `reddit-saved fetch --type saved --full` for a full resync.
   Requires auth (browser-extension session or OAuth).
+- **Refresh everything at once** → `reddit-saved jobs run` (fetch all origins →
+  capture context → sync inbox → backup, skipping backup when unconfigured).
+  `reddit-saved jobs status` shows recent pipeline runs; a file lock makes
+  overlapping runs skip cleanly.
 
 ## Quality Filter
 

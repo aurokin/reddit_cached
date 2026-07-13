@@ -58,6 +58,10 @@ Commands:
                           [--push] [--no-git]
   backup status           Compare the database against the last backup
 
+  jobs run                Run the sync pipeline: fetch, context, inbox, backup
+                          --steps <comma list> to run a subset, --limit N
+  jobs status             Recent pipeline runs and whether one is running now
+
 List/search/export options:
   --hide-low-quality      Exclude deleted/removed content, bot posts, and
                           low-score short comments

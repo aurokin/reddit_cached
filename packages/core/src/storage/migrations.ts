@@ -243,6 +243,25 @@ export const MIGRATIONS: readonly Migration[] = [
       db.run("CREATE INDEX IF NOT EXISTS idx_inbox_type ON inbox_items(type)");
     },
   },
+  {
+    version: 6,
+    name: "job run provenance",
+    up(db) {
+      // Scheduled-pipeline provenance (jobs run) — one row per pipeline run,
+      // per-step outcomes as JSON. Provenance only: excluded from backups like
+      // sync_runs. started_at/finished_at are epoch MILLISECONDS; a NULL
+      // finished_at means the run crashed or is in flight.
+      db.run(`CREATE TABLE IF NOT EXISTS job_runs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        started_at INTEGER NOT NULL,
+        finished_at INTEGER,
+        status TEXT NOT NULL,
+        trigger TEXT NOT NULL DEFAULT 'manual',
+        steps_json TEXT NOT NULL DEFAULT '[]'
+      )`);
+      db.run("CREATE INDEX IF NOT EXISTS idx_job_runs_started ON job_runs(started_at)");
+    },
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

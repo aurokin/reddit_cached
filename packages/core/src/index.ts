@@ -53,6 +53,10 @@ export type {
   InboxItemType,
   InboxItemRow,
   ListInboxOptions,
+  // Job run types
+  JobRunStatus,
+  JobRunSummary,
+  JobStepResult,
   // Tag types
   Tag,
   TagWithCount,
@@ -257,7 +261,9 @@ export type { ResearchBrief, ResearchOptions, ResearchSeed } from "./research/br
 export { PerformanceMonitor, formatDuration, formatBytes } from "./monitor/performance";
 
 // Utilities
-export { getCheckpointPathForDatabase, paths } from "./utils/paths";
+export { getCheckpointPathForDatabase, getJobLockPathForDatabase, paths } from "./utils/paths";
+export { JOB_LOCK_STALE_MS, acquireJobLock, readJobLock } from "./utils/job-lock";
+export type { JobLockInfo, JobLockRelease } from "./utils/job-lock";
 export { getConfigFilePath, loadConfig, saveConfig } from "./utils/config";
 export type { AppConfig, BackupConfig } from "./utils/config";
 export { decodeHtmlEntities, escapeHtml } from "./utils/html-escape";

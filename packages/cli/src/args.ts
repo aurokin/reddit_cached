@@ -37,6 +37,7 @@ const COMMAND_WORDS = new Set([
   "backup",
   "research",
   "inbox",
+  "jobs",
   "create",
   "rename",
   "delete",
@@ -53,6 +54,7 @@ const SUBCOMMANDS: Record<string, Set<string>> = {
   fetch: new Set(["context", "inbox"]),
   links: new Set(["top", "search", "rebuild"]),
   backup: new Set(["init", "sync", "status"]),
+  jobs: new Set(["run", "status"]),
 };
 
 /** Flags that are always boolean — never consume the next argument as a value */

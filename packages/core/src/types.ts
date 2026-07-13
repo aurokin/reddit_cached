@@ -572,6 +572,35 @@ export interface SyncRunSummary {
 }
 
 // ============================================================================
+// Job Run Types
+// ============================================================================
+
+export type JobRunStatus = "running" | "complete" | "errored";
+
+/** Outcome of one pipeline step within a jobs run. */
+export interface JobStepResult {
+  step: string;
+  ok: boolean;
+  durationMs: number;
+  /** Why the step did no work (e.g. "not-configured") — still ok */
+  skipped?: string;
+  error?: string;
+  /** Step-specific result payload (per-origin fetch results, sync counts, …) */
+  detail?: unknown;
+}
+
+export interface JobRunSummary {
+  id: number;
+  /** epoch ms */
+  startedAt: number;
+  /** epoch ms; null = crashed or in flight */
+  finishedAt: number | null;
+  status: JobRunStatus;
+  trigger: string;
+  steps: JobStepResult[];
+}
+
+// ============================================================================
 // Inbox Types
 // ============================================================================
 

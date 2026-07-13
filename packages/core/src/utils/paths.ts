@@ -68,6 +68,10 @@ export const paths = {
   get checkpoint() {
     return join(getDataDir(), ".reddit-import-checkpoint.json");
   },
+  /** Directory for log files (launchd job stdout/stderr) */
+  get logs() {
+    return join(getDataDir(), "logs");
+  },
 };
 
 /** Checkpoint file co-located with the database. With an origin, each sync
@@ -77,4 +81,10 @@ export const paths = {
 export function getCheckpointPathForDatabase(dbPath: string, origin?: string): string {
   const suffix = origin ? `.${origin}` : "";
   return join(dirname(dbPath), `.reddit-import-checkpoint${suffix}.json`);
+}
+
+/** Job lock file co-located with the database, mirroring the checkpoint
+ *  convention — `--db` runs get their own lock, tests stay hermetic. */
+export function getJobLockPathForDatabase(dbPath: string): string {
+  return join(dirname(dbPath), ".reddit-jobs.lock");
 }
