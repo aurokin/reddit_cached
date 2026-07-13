@@ -73,6 +73,7 @@ describe("JSONL backup", () => {
     expect(existsSync(join(repoPath, "data", "tags.jsonl"))).toBe(true);
     expect(existsSync(join(repoPath, "data", "post_tags.jsonl"))).toBe(true);
     expect(existsSync(join(repoPath, "data", "sync_state.jsonl"))).toBe(true);
+    expect(existsSync(join(repoPath, "data", "inbox_items.jsonl"))).toBe(true);
     expect(existsSync(join(repoPath, "manifest.json"))).toBe(true);
 
     // One object per line, keys sorted

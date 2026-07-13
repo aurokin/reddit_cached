@@ -36,6 +36,7 @@ const COMMAND_WORDS = new Set([
   "links",
   "backup",
   "research",
+  "inbox",
   "create",
   "rename",
   "delete",
@@ -49,7 +50,7 @@ const COMMAND_WORDS = new Set([
 const SUBCOMMANDS: Record<string, Set<string>> = {
   auth: new Set(["login", "status", "logout"]),
   tag: new Set(["list", "create", "rename", "delete", "add", "remove", "show"]),
-  fetch: new Set(["context"]),
+  fetch: new Set(["context", "inbox"]),
   links: new Set(["top", "search", "rebuild"]),
   backup: new Set(["init", "sync", "status"]),
 };
@@ -74,6 +75,7 @@ const BOOLEAN_FLAGS = new Set([
   "push",
   "no-git",
   "json",
+  "unread",
 ]);
 
 export function parseArgs(argv: string[]): ParsedArgs {

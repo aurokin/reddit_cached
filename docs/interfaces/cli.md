@@ -13,6 +13,8 @@ reddit-saved auth login [--open-browser]
 reddit-saved auth status|logout
 reddit-saved fetch [--full] [--type saved|upvoted|submitted|comments | --all] [--limit N]
 reddit-saved fetch context [--limit N] [--top-comments N] [--refresh <days>]
+reddit-saved fetch inbox [--limit N]
+reddit-saved inbox [--type comment_reply|post_reply|mention|message] [--unread] [--limit N]
 reddit-saved search <query> [filters...]
 reddit-saved list [filters...]
 reddit-saved research <query> [--limit N] [--since d] [--until d] [--out f.md] [--json]
@@ -52,6 +54,12 @@ reddit-saved backup status
   `--include-context` (or `--origin context`) is passed, and they never
   participate in orphan detection. Progress is per-item via
   `context_fetched_at`; rerun the command to work through the backlog.
+- `fetch inbox` syncs the Reddit inbox (comment replies, post replies,
+  username mentions, private messages) into the `inbox_items` table and stops
+  early once a page contains nothing new or changed. Replies and mentions are
+  also mirrored into `posts` as context rows. `inbox` reads the table offline,
+  unread first; `is_new` mirrors Reddit's unread flag as of the last sync and
+  nothing is ever marked read on Reddit.
 - `links` queries a derived `link_occurrences` index of every outbound URL in
   stored content (normalized: lowercased host, no www./fragment/tracking
   params). It is maintained automatically during fetches; `links rebuild`

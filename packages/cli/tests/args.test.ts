@@ -35,6 +35,18 @@ describe("parseArgs", () => {
     expect(result.flags).toEqual({ limit: "10" });
   });
 
+  test("parses fetch inbox subcommand", () => {
+    const result = parseArgs(["fetch", "inbox", "--limit", "50"]);
+    expect(result.command).toEqual(["fetch", "inbox"]);
+    expect(result.flags).toEqual({ limit: "50" });
+  });
+
+  test("parses inbox command with boolean unread flag", () => {
+    const result = parseArgs(["inbox", "--unread", "--type", "mention"]);
+    expect(result.command).toEqual(["inbox"]);
+    expect(result.flags).toEqual({ unread: true, type: "mention" });
+  });
+
   test("bare fetch still parses with flags after the subcommand was added", () => {
     const result = parseArgs(["fetch", "--all", "--full"]);
     expect(result.command).toEqual(["fetch"]);

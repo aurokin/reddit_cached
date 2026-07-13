@@ -135,6 +135,24 @@ describe("migrations", () => {
     db.close();
   });
 
+  test("v5 creates inbox_items on a pre-v5 database", () => {
+    const db = new Database(dbPath);
+    runMigrations(db, MIGRATIONS.slice(0, 4));
+    expect(getSchemaVersion(db)).toBe(4);
+    const before = db
+      .query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'inbox_items'")
+      .get();
+    expect(before).toBeNull();
+
+    runMigrations(db);
+    const cols = db.query("PRAGMA table_info(inbox_items)").all() as { name: string }[];
+    const names = cols.map((c) => c.name);
+    for (const expected of ["id", "name", "kind", "type", "created_utc", "is_new", "raw_json"]) {
+      expect(names).toContain(expected);
+    }
+    db.close();
+  });
+
   test("initializeSchema throws when the database is newer than the code", () => {
     const db = new Database(dbPath);
     initializeSchema(db);

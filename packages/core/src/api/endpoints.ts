@@ -52,6 +52,27 @@ export function buildContentPageRequest(
   };
 }
 
+/** Inbox listing boxes under /message/ */
+export type InboxBox = "inbox" | "unread" | "sent" | "mentions";
+
+/** Build RequestParams for an inbox page fetch (/message/inbox etc.) */
+export function buildInboxPageRequest(
+  auth: AuthContext,
+  box: InboxBox,
+  pageSize: number,
+  after?: string | null,
+): RequestParams {
+  const clampedPageSize = Math.max(1, Math.min(100, pageSize));
+  let url = `${auth.baseUrl}/message/${box}${auth.pathSuffix}?raw_json=1&limit=${clampedPageSize}`;
+  if (after) url += `&after=${encodeURIComponent(after)}`;
+
+  return {
+    url,
+    method: "GET",
+    headers: { ...auth.headers },
+  };
+}
+
 /** Build RequestParams for POST /api/unsave */
 export function buildUnsaveRequest(auth: AuthContext, fullname: string): RequestParams {
   return {

@@ -46,6 +46,9 @@ provenance), and `resumeCursors`. All commands emit JSON by default; pass
   whole window. Do NOT shortcut with a top-N `--sort score` slice — that
   yields only viral peaks and misses recurring themes and everyday texture.
   Top-score slices are for spot-checks only.
+- **"Did anyone reply / mention me?"** → `reddit-saved inbox` (local read;
+  unread first). Filter with `--type comment_reply|post_reply|mention|message`
+  and `--unread`. Sync first with `reddit-saved fetch inbox`.
 - **Browse / filter** → `reddit-saved list` with the same filters as search
   plus `--origin saved|upvoted|submitted|commented|context` and `--tag`.
 - **Bulk export for another tool** → `reddit-saved export --format
@@ -79,6 +82,15 @@ Context rows are excluded from `list`/`search`/`export`/stats unless you pass
 `--include-context` (or `--origin context`), and they never affect orphan
 detection. `research` uses them automatically.
 
+## Inbox
+
+`reddit-saved fetch inbox` syncs the Reddit inbox (comment replies, post
+replies, username mentions, private messages) into a dedicated `inbox_items`
+table; `reddit-saved inbox` reads it offline. `is_new` mirrors Reddit's unread
+flag as of the last sync — the tool never marks anything read on Reddit.
+Replies and mentions are also stored as context rows, so they show up in
+`research` threads and `search --include-context`.
+
 ## Trust & Completeness
 
 Interpret coverage before making claims:
@@ -104,10 +116,10 @@ reddit-saved backup sync
 reddit-saved backup status
 ```
 
-Backed up: posts (sharded by UTC year), tags, post_tags, sync_state, and a
-timestamp-free manifest. Deterministic — an unchanged database produces no
-commit. Not backed up: link_occurrences, sync_runs, FTS tables (all derived;
-`reddit-saved links rebuild` regenerates the link index).
+Backed up: posts (sharded by UTC year), tags, post_tags, sync_state,
+inbox_items, and a timestamp-free manifest. Deterministic — an unchanged
+database produces no commit. Not backed up: link_occurrences, sync_runs, FTS
+tables (all derived; `reddit-saved links rebuild` regenerates the link index).
 
 ## Verification
 

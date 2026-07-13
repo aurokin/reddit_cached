@@ -4,6 +4,7 @@ import {
   buildCommentThreadRequest,
   buildCommentsRequest,
   buildContentPageRequest,
+  buildInboxPageRequest,
   buildMeRequest,
   buildUnsaveRequest,
   buildUserAgent,
@@ -68,6 +69,36 @@ describe("buildContentPageRequest", () => {
     expect(params.url).toBe("https://www.reddit.com/user/user1/saved.json?raw_json=1&limit=100");
     expect(params.headers?.Cookie).toBe("reddit_session=abc");
     expect(params.headers?.Authorization).toBeUndefined();
+  });
+});
+
+describe("buildInboxPageRequest", () => {
+  test("builds OAuth inbox URL", () => {
+    const params = buildInboxPageRequest(bearerAuth(), "inbox", 100);
+    expect(params.url).toBe(`${REDDIT_OAUTH_BASE_URL}/message/inbox?raw_json=1&limit=100`);
+    expect(params.method).toBe("GET");
+    expect(params.headers?.Authorization).toBe("Bearer tok");
+  });
+
+  test("cookie mode appends .json", () => {
+    const params = buildInboxPageRequest(cookieAuth(), "inbox", 50);
+    expect(params.url).toBe("https://www.reddit.com/message/inbox.json?raw_json=1&limit=50");
+    expect(params.headers?.Cookie).toBe("reddit_session=abc");
+  });
+
+  test("encodes the after cursor", () => {
+    const params = buildInboxPageRequest(bearerAuth(), "mentions", 100, "t4_ab/c");
+    expect(params.url).toContain("&after=t4_ab%2Fc");
+  });
+
+  test("omits after when null", () => {
+    const params = buildInboxPageRequest(bearerAuth(), "unread", 25, null);
+    expect(params.url).not.toContain("after");
+  });
+
+  test("clamps page size to 1..100", () => {
+    expect(buildInboxPageRequest(bearerAuth(), "inbox", 500).url).toContain("limit=100");
+    expect(buildInboxPageRequest(bearerAuth(), "inbox", 0).url).toContain("limit=1");
   });
 });
 

@@ -26,6 +26,11 @@ Commands:
   fetch context           Capture thread context around saved items
                           --limit N (default 50), --top-comments N (default 20),
                           --refresh <days> re-captures stale context
+  fetch inbox             Sync comment replies, mentions, and messages
+                          --limit N (default 200)
+  inbox                   Read synced inbox items (local, unread first)
+                          --type comment_reply|post_reply|mention|message,
+                          --unread, --limit N (default 25)
   search <query>          Full-text search saved posts
   list                    Browse saved posts with filters
   research <query>        Deterministic markdown brief from local data

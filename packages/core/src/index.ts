@@ -4,6 +4,7 @@ export type {
   CommentSortOrder,
   ContentOrigin,
   StoredOrigin,
+  SyncOrigin,
   PostType,
   FilterMode,
   DateRangePreset,
@@ -48,6 +49,10 @@ export type {
   SyncRunMode,
   SyncRunStatus,
   SyncRunSummary,
+  // Inbox types
+  InboxItemType,
+  InboxItemRow,
+  ListInboxOptions,
   // Tag types
   Tag,
   TagWithCount,
@@ -170,6 +175,8 @@ export {
   CONTEXT_SYNC_ANCESTOR_DEPTH,
 } from "./sync/context-sync";
 export type { ContextSyncOptions, ContextSyncResult } from "./sync/context-sync";
+export { syncInbox, deriveInboxType, INBOX_SYNC_DEFAULT_LIMIT } from "./sync/inbox-sync";
+export type { InboxSyncOptions, InboxSyncResult } from "./sync/inbox-sync";
 
 // API
 export { RedditApiClient } from "./api/client";
@@ -177,12 +184,14 @@ export type { TokenProvider } from "./api/client";
 export {
   buildUserAgent,
   buildContentPageRequest,
+  buildInboxPageRequest,
   buildUnsaveRequest,
   buildMeRequest,
   buildCommentsRequest,
   buildCommentContextRequest,
   buildCommentThreadRequest,
 } from "./api/endpoints";
+export type { InboxBox } from "./api/endpoints";
 
 // Backup
 export {

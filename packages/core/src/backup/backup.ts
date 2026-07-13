@@ -111,6 +111,9 @@ export function buildBackupPlan(storage: SqliteAdapter): BackupPlanFile[] {
     { path: "data/tags.jsonl", sql: "SELECT * FROM tags ORDER BY id ASC" },
     { path: "data/post_tags.jsonl", sql: "SELECT * FROM post_tags ORDER BY post_id, tag_id" },
     { path: "data/sync_state.jsonl", sql: "SELECT * FROM sync_state ORDER BY key ASC" },
+    // Source of truth (not rebuildable from posts) — unlike the derived
+    // link_occurrences and provenance-only sync_runs/job_runs tables.
+    { path: "data/inbox_items.jsonl", sql: "SELECT * FROM inbox_items ORDER BY name ASC" },
   ];
   for (const table of tables) {
     const rows = db.query(table.sql).all() as Array<Record<string, unknown>>;

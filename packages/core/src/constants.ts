@@ -19,7 +19,7 @@ export const OAUTH_REDIRECT_URI = `http://${DEFAULT_OAUTH_HOST}:${DEFAULT_REDIRE
 export const OAUTH_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 /** Timeout for individual auth-related fetch calls (token exchange, refresh, /me) */
 export const AUTH_FETCH_TIMEOUT_MS = 30_000; // 30 seconds
-export const OAUTH_SCOPES = "identity history read save";
+export const OAUTH_SCOPES = "identity history read save privatemessages";
 export const OAUTH_DURATION = "permanent";
 export const OAUTH_RESPONSE_TYPE = "code";
 export const OAUTH_STATE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes

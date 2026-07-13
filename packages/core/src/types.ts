@@ -13,6 +13,10 @@ export type ContentOrigin = "saved" | "upvoted" | "submitted" | "commented";
  *  from list/search by default and never participate in orphan detection. */
 export type StoredOrigin = ContentOrigin | "context";
 
+/** What a sync_runs row can be tagged as: a content listing, or the inbox.
+ *  Inbox syncs never participate in orphan detection. */
+export type SyncOrigin = ContentOrigin | "inbox";
+
 export type PostType = "text" | "link" | "image" | "video";
 export type FilterMode = "include" | "exclude";
 export type DateRangePreset =
@@ -550,7 +554,7 @@ export type SyncRunStatus = "running" | "complete" | "partial" | "errored" | "ca
 
 /** Per-origin provenance summary derived from the sync_runs table. */
 export interface SyncRunSummary {
-  origin: ContentOrigin;
+  origin: SyncOrigin;
   lastRun: {
     mode: SyncRunMode;
     /** epoch ms */
@@ -565,6 +569,52 @@ export interface SyncRunSummary {
   } | null;
   /** epoch ms of the last complete full sync, or null if none */
   lastCompleteFullAt: number | null;
+}
+
+// ============================================================================
+// Inbox Types
+// ============================================================================
+
+/** Kind of inbox entry: replies to your posts/comments, username mentions,
+ *  or private messages. */
+export type InboxItemType = "comment_reply" | "post_reply" | "mention" | "message";
+
+export interface InboxItemRow {
+  id: string;
+  /** Fullname (t1_xxx for replies/mentions, t4_xxx for messages) */
+  name: string;
+  /** Reddit kind: "t1" | "t4" */
+  kind: string;
+  type: InboxItemType;
+  author: string | null;
+  subject: string | null;
+  body: string | null;
+  /** Recipient (your username, or a subreddit for modmail) */
+  dest: string | null;
+  subreddit: string | null;
+  /** Permalink with ?context= query — t1 items only */
+  context: string | null;
+  link_title: string | null;
+  parent_id: string | null;
+  first_message_name: string | null;
+  /** Unix timestamp in SECONDS (from Reddit API) */
+  created_utc: number;
+  /** Reddit's unread flag as of the last inbox sync (1 = unread) */
+  is_new: number;
+  /** Epoch MILLISECONDS when first stored */
+  fetched_at: number;
+  /** Epoch MILLISECONDS when last updated */
+  updated_at: number;
+  raw_json: string;
+}
+
+export interface ListInboxOptions {
+  type?: InboxItemType;
+  unreadOnly?: boolean;
+  /** Unix timestamp in SECONDS; include items created at or after this time */
+  createdAfter?: number;
+  limit?: number;
+  offset?: number;
 }
 
 export interface DbStats {

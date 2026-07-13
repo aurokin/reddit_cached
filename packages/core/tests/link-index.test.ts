@@ -271,7 +271,10 @@ describe("link index in SqliteAdapter", () => {
     adapter.upsertPosts([makeLinkPost("bf1", { url: "https://example.com/backfill" })], "saved");
     adapter.getDb().run("DELETE FROM link_occurrences");
     adapter.getDb().run("DROP TABLE link_occurrences");
-    adapter.getDb().run("DELETE FROM schema_version WHERE version = 4");
+    // Roll back to v3 — versions past the link-index migration must go too,
+    // or MAX(version) hides the gap and nothing re-runs (inbox_items from v5
+    // is IF NOT EXISTS, so leaving its table behind is harmless).
+    adapter.getDb().run("DELETE FROM schema_version WHERE version >= 4");
     adapter.close();
 
     const reopened = new SqliteAdapter(dbPath);

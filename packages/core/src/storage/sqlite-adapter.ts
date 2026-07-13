@@ -15,12 +15,15 @@ import {
 import type {
   ContentOrigin,
   DbStats,
+  InboxItemRow,
+  ListInboxOptions,
   ListOptions,
   PostRow,
   RedditItem,
   SearchOptions,
   SearchResult,
   StorageAdapter,
+  SyncOrigin,
   SyncRunMode,
   SyncRunStatus,
   SyncRunSummary,
@@ -94,6 +97,48 @@ function buildListFilterParts(opts: ListOptions): { where: string[]; params: Bin
   }
 
   return { where, params };
+}
+
+function buildInboxFilterParts(opts: ListInboxOptions): { where: string[]; params: BindValue[] } {
+  const where: string[] = [];
+  const params: BindValue[] = [];
+
+  if (opts.type) {
+    where.push("type = ?");
+    params.push(opts.type);
+  }
+  if (opts.unreadOnly) {
+    where.push("is_new = 1");
+  }
+  if (opts.createdAfter !== undefined) {
+    where.push("created_utc >= ?");
+    params.push(opts.createdAfter);
+  }
+
+  return { where, params };
+}
+
+function inboxRowToBindRecord(row: InboxItemRow): BindRecord {
+  return {
+    $id: row.id,
+    $name: row.name,
+    $kind: row.kind,
+    $type: row.type,
+    $author: row.author,
+    $subject: row.subject,
+    $body: row.body,
+    $dest: row.dest,
+    $subreddit: row.subreddit,
+    $context: row.context,
+    $link_title: row.link_title,
+    $parent_id: row.parent_id,
+    $first_message_name: row.first_message_name,
+    $created_utc: row.created_utc,
+    $is_new: row.is_new,
+    $fetched_at: row.fetched_at,
+    $updated_at: row.updated_at,
+    $raw_json: row.raw_json,
+  };
 }
 
 function buildSearchFilterParts(
@@ -582,7 +627,7 @@ export class SqliteAdapter implements StorageAdapter {
   // --------------------------------------------------------------------------
 
   /** Record the start of a sync run. Returns the run id for finishSyncRun. */
-  startSyncRun(origin: ContentOrigin, mode: SyncRunMode): number {
+  startSyncRun(origin: SyncOrigin, mode: SyncRunMode): number {
     const result = this.db
       .query(
         "INSERT INTO sync_runs (origin, mode, started_at, status) VALUES (?, ?, ?, 'running') RETURNING id",
@@ -631,7 +676,7 @@ export class SqliteAdapter implements StorageAdapter {
          )`,
       )
       .all() as Array<{
-      origin: ContentOrigin;
+      origin: SyncOrigin;
       mode: SyncRunMode;
       started_at: number;
       finished_at: number;
@@ -648,7 +693,7 @@ export class SqliteAdapter implements StorageAdapter {
          WHERE status = 'complete' AND mode = 'full'
          GROUP BY origin`,
       )
-      .all() as Array<{ origin: ContentOrigin; finished_at: number }>;
+      .all() as Array<{ origin: SyncOrigin; finished_at: number }>;
     const lastFullByOrigin = new Map(lastFull.map((r) => [r.origin, r.finished_at]));
 
     return latest.map((r) => ({
@@ -664,6 +709,111 @@ export class SqliteAdapter implements StorageAdapter {
       },
       lastCompleteFullAt: lastFullByOrigin.get(r.origin) ?? null,
     }));
+  }
+
+  // --------------------------------------------------------------------------
+  // Inbox
+  // --------------------------------------------------------------------------
+
+  /** Upsert inbox rows, classifying each as inserted, updated (content or
+   *  is_new changed), or unchanged. The update branch keeps fetched_at
+   *  (first-seen) and only bumps updated_at when something actually changed. */
+  upsertInboxItems(rows: InboxItemRow[]): { inserted: number; updated: number; unchanged: number } {
+    const result = { inserted: 0, updated: 0, unchanged: 0 };
+    if (rows.length === 0) return result;
+
+    this.db.transaction(() => {
+      const selectExisting = this.db.prepare(
+        "SELECT is_new, body, subject FROM inbox_items WHERE name = ?",
+      );
+      const insert = this.db.prepare(`
+        INSERT INTO inbox_items (
+          id, name, kind, type, author, subject, body, dest, subreddit,
+          context, link_title, parent_id, first_message_name, created_utc,
+          is_new, fetched_at, updated_at, raw_json
+        ) VALUES (
+          $id, $name, $kind, $type, $author, $subject, $body, $dest, $subreddit,
+          $context, $link_title, $parent_id, $first_message_name, $created_utc,
+          $is_new, $fetched_at, $updated_at, $raw_json
+        )
+      `);
+      const update = this.db.prepare(`
+        UPDATE inbox_items SET
+          author = $author, subject = $subject, body = $body, dest = $dest,
+          subreddit = $subreddit, context = $context, link_title = $link_title,
+          parent_id = $parent_id, first_message_name = $first_message_name,
+          is_new = $is_new, updated_at = $updated_at, raw_json = $raw_json
+        WHERE name = $name
+      `);
+
+      for (const row of rows) {
+        const existing = selectExisting.get(row.name) as {
+          is_new: number;
+          body: string | null;
+          subject: string | null;
+        } | null;
+
+        if (!existing) {
+          insert.run(inboxRowToBindRecord(row));
+          result.inserted++;
+        } else if (
+          existing.is_new !== row.is_new ||
+          existing.body !== row.body ||
+          existing.subject !== row.subject
+        ) {
+          // Subset bind record: bun:sqlite rejects named params the statement
+          // doesn't reference.
+          update.run({
+            $name: row.name,
+            $author: row.author,
+            $subject: row.subject,
+            $body: row.body,
+            $dest: row.dest,
+            $subreddit: row.subreddit,
+            $context: row.context,
+            $link_title: row.link_title,
+            $parent_id: row.parent_id,
+            $first_message_name: row.first_message_name,
+            $is_new: row.is_new,
+            $updated_at: row.updated_at,
+            $raw_json: row.raw_json,
+          });
+          result.updated++;
+        } else {
+          result.unchanged++;
+        }
+      }
+    })();
+
+    return result;
+  }
+
+  /** Unread first, newest first within each group. */
+  listInboxItems(opts: ListInboxOptions = {}): InboxItemRow[] {
+    const { where, params } = buildInboxFilterParts(opts);
+    const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
+    const limit = opts.limit ?? 25;
+    const offset = opts.offset ?? 0;
+    return this.db
+      .query(
+        `SELECT * FROM inbox_items ${whereSql}
+         ORDER BY is_new DESC, created_utc DESC
+         LIMIT ? OFFSET ?`,
+      )
+      .all(...(params as SQLQueryBindings[]), limit, offset) as InboxItemRow[];
+  }
+
+  countInboxItems(opts: ListInboxOptions = {}): number {
+    const { where, params } = buildInboxFilterParts(opts);
+    const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
+    const row = this.db
+      .query(`SELECT COUNT(*) AS count FROM inbox_items ${whereSql}`)
+      .get(...(params as SQLQueryBindings[])) as { count: number };
+    return row.count;
+  }
+
+  countUnreadInbox(): number {
+    return this.countInboxItems({ unreadOnly: true });
   }
 
   // --------------------------------------------------------------------------

@@ -207,6 +207,42 @@ export const MIGRATIONS: readonly Migration[] = [
       rebuildLinkIndex(db);
     },
   },
+  {
+    version: 5,
+    name: "inbox items",
+    up(db) {
+      // Source-of-truth table for the Reddit inbox (comment replies, post
+      // replies, username mentions, private messages). Not derived from posts
+      // — included in backups. t1 inbox items are additionally stored as
+      // content_origin='context' rows in posts (hybrid), so their bodies reach
+      // FTS without touching the posts_fts column list.
+      // created_utc is epoch SECONDS; fetched_at/updated_at are epoch
+      // MILLISECONDS. is_new mirrors Reddit's unread flag as of the last sync.
+      db.run(`CREATE TABLE IF NOT EXISTS inbox_items (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        kind TEXT NOT NULL,
+        type TEXT NOT NULL,
+        author TEXT,
+        subject TEXT,
+        body TEXT,
+        dest TEXT,
+        subreddit TEXT,
+        context TEXT,
+        link_title TEXT,
+        parent_id TEXT,
+        first_message_name TEXT,
+        created_utc INTEGER NOT NULL,
+        is_new INTEGER NOT NULL DEFAULT 0,
+        fetched_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        raw_json TEXT NOT NULL
+      )`);
+      db.run("CREATE INDEX IF NOT EXISTS idx_inbox_created ON inbox_items(created_utc)");
+      db.run("CREATE INDEX IF NOT EXISTS idx_inbox_new ON inbox_items(is_new)");
+      db.run("CREATE INDEX IF NOT EXISTS idx_inbox_type ON inbox_items(type)");
+    },
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

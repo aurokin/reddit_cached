@@ -11,6 +11,8 @@ import { backupInitCmd, backupStatusCmd, backupSyncCmd } from "./backup";
 import { exportCmd } from "./export";
 import { fetchCmd } from "./fetch";
 import { fetchContextCmd } from "./fetch-context";
+import { fetchInboxCmd } from "./fetch-inbox";
+import { inboxCmd } from "./inbox";
 import { linksRebuildCmd, linksSearchCmd, linksTopCmd } from "./links";
 import { listCmd } from "./list";
 import { researchCmd } from "./research";
@@ -30,6 +32,8 @@ export const COMMANDS: Record<string, CommandHandler> = {
   "auth logout": authLogout,
   fetch: fetchCmd,
   "fetch context": fetchContextCmd,
+  "fetch inbox": fetchInboxCmd,
+  inbox: inboxCmd,
   search: searchCmd,
   list: listCmd,
   research: researchCmd,

@@ -25,10 +25,12 @@ import type {
   UnsaveResult,
 } from "../types";
 import {
+  type InboxBox,
   buildCommentContextRequest,
   buildCommentThreadRequest,
   buildCommentsRequest,
   buildContentPageRequest,
+  buildInboxPageRequest,
   buildMeRequest,
   buildUnsaveRequest,
   buildUserAgent,
@@ -158,6 +160,32 @@ export class RedditApiClient {
       );
     }
     return name;
+  }
+
+  // --------------------------------------------------------------------------
+  // Inbox
+  // --------------------------------------------------------------------------
+
+  /** Fetch a single inbox page. Single-shot by design — inbox syncing wants
+   *  early-stop between pages, which the accumulate-everything shape of
+   *  fetchUserContent can't express. Items are NOT stamped with a
+   *  contentOrigin (inbox items don't belong to a sync listing). */
+  async fetchInboxPage(
+    box: InboxBox,
+    pageSize: number,
+    after?: string | null,
+    signal?: AbortSignal,
+  ): Promise<{ items: RedditItem[]; after: string | null }> {
+    await this.ensureValid();
+    const auth = this.resolveAuth();
+
+    const params = buildInboxPageRequest(auth, box, pageSize, after);
+    if (signal) params.signal = signal;
+    const response = await this.requestQueue.enqueue(params);
+
+    const listing = response.body as RedditListingResponse | null;
+    const children = listing?.data?.children ?? [];
+    return { items: children, after: listing?.data?.after ?? null };
   }
 
   // --------------------------------------------------------------------------
