@@ -2,15 +2,18 @@ import { type RequestInitJson, apiFetch, apiSearchParams } from "@/lib/api-clien
 import type {
   AuthStatus,
   DbStats,
+  LinkSearchResponse,
   PostRow,
   PostsListResponse,
   SearchResponse,
   SearchResult,
   SessionStatus,
   SyncProgressEvent,
+  SyncRunsResponse,
   SyncState,
   Tag,
   TagWithCount,
+  TopLinksResponse,
 } from "@/types";
 /**
  * React Query hooks for the /api surface.
@@ -43,6 +46,9 @@ export const qk = {
   searchPosts: (params: Record<string, unknown>) => ["posts", "search", params] as const,
   tags: ["tags"] as const,
   postTags: (id: string) => ["post", id, "tags"] as const,
+  syncRuns: ["sync", "runs"] as const,
+  topLinks: (params: Record<string, unknown>) => ["links", "top", params] as const,
+  linkSearch: (params: Record<string, unknown>) => ["links", "search", params] as const,
 };
 
 export function useAuthStatus(): UseQueryResult<AuthStatus> {
@@ -240,6 +246,36 @@ export function useSyncStatus(): UseQueryResult<SyncStatusResponse> {
   });
 }
 
+/** Per-origin sync provenance from sync_runs — powers the dashboard health cards. */
+export function useSyncRuns(): UseQueryResult<SyncRunsResponse> {
+  return useQuery({
+    queryKey: qk.syncRuns,
+    queryFn: () => apiFetch<SyncRunsResponse>("/api/sync/runs"),
+    staleTime: 30_000,
+  });
+}
+
+export function useTopLinks(
+  params: Record<string, string | number | boolean | undefined> = {},
+): UseQueryResult<TopLinksResponse> {
+  return useQuery({
+    queryKey: qk.topLinks(params),
+    queryFn: () => apiFetch<TopLinksResponse>(`/api/links${apiSearchParams(params)}`),
+    staleTime: 30_000,
+  });
+}
+
+export function useLinkSearch(
+  params: Record<string, string | number | boolean | undefined> & { q?: string },
+): UseQueryResult<LinkSearchResponse> {
+  const enabled = !!(params.q && params.q.trim().length > 0);
+  return useQuery({
+    queryKey: qk.linkSearch(params),
+    queryFn: () => apiFetch<LinkSearchResponse>(`/api/links/search${apiSearchParams(params)}`),
+    enabled,
+  });
+}
+
 export function useUnsave(): UseMutationResult<
   { succeeded: string[]; failed: Array<{ id: string; error: string }>; cancelled: boolean },
   Error,
@@ -303,6 +339,7 @@ export function SyncStreamProvider({ children }: { children: ReactNode }) {
   const invalidateSyncQueries = async (): Promise<void> => {
     await Promise.all([
       qc.invalidateQueries({ queryKey: qk.syncStatus }),
+      qc.invalidateQueries({ queryKey: qk.syncRuns }),
       qc.invalidateQueries({ queryKey: ["posts"] }),
       qc.invalidateQueries({ queryKey: ["post"] }),
     ]);

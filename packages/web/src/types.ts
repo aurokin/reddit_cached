@@ -1,13 +1,26 @@
 import type {
   ContentOrigin,
   DbStats,
+  LinkSearchRow,
+  PostRow,
+  SearchResult,
+  SyncRunSummary,
+  Tag,
+  TagWithCount,
+  TopLink,
+} from "@reddit-saved/core";
+
+export type {
   PostRow,
   SearchResult,
   Tag,
   TagWithCount,
-} from "@reddit-saved/core";
-
-export type { PostRow, SearchResult, Tag, TagWithCount, DbStats, ContentOrigin };
+  DbStats,
+  ContentOrigin,
+  SyncRunSummary,
+  TopLink,
+  LinkSearchRow,
+};
 
 /** Shape returned by the `/api/posts` list endpoint. */
 export interface PostsListResponse {
@@ -23,6 +36,19 @@ export interface SearchResponse {
   query: string;
   limit: number;
   offset: number;
+}
+
+export interface SyncRunsResponse {
+  items: SyncRunSummary[];
+}
+
+export interface TopLinksResponse {
+  items: TopLink[];
+}
+
+export interface LinkSearchResponse {
+  items: LinkSearchRow[];
+  query: string;
 }
 
 export interface AuthStatus {

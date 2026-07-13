@@ -62,6 +62,11 @@ app.get("/status", (c) => {
   });
 });
 
+app.get("/runs", (c) => {
+  const ctx = getAppContext();
+  return c.json({ items: ctx.storage.getSyncRunSummaries() });
+});
+
 app.get("/fetch", (c) => {
   assertLocalAppOrigin(c, { allowEmptyOrigin: true });
   const ctx = getAppContext();

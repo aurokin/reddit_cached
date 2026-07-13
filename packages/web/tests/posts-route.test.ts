@@ -108,6 +108,41 @@ describe("posts route", () => {
     expect(await beforeRes.text()).toContain("before");
   });
 
+  test("list rejects malformed after/before filters", async () => {
+    const afterRes = await postsRoute.fetch(
+      new Request("http://localhost/?after=abc", { method: "GET" }),
+    );
+    expect(afterRes.status).toBe(400);
+    expect(await afterRes.text()).toContain("after");
+
+    const beforeRes = await postsRoute.fetch(
+      new Request("http://localhost/?before=abc", { method: "GET" }),
+    );
+    expect(beforeRes.status).toBe(400);
+    expect(await beforeRes.text()).toContain("before");
+  });
+
+  test("list filters by after/before on created_utc", async () => {
+    const ctx = getAppContext();
+    const older = makeItem("older", "old post");
+    older.data.created_utc = 1_600_000_000;
+    const newer = makeItem("newer", "new post");
+    newer.data.created_utc = 1_700_000_000;
+    ctx.storage.upsertPosts([older, newer], "saved");
+
+    const afterRes = await postsRoute.fetch(
+      new Request("http://localhost/?after=1650000000", { method: "GET" }),
+    );
+    const afterBody = (await afterRes.json()) as { items: Array<{ id: string }> };
+    expect(afterBody.items.map((item) => item.id)).toEqual(["newer"]);
+
+    const beforeRes = await postsRoute.fetch(
+      new Request("http://localhost/?before=1650000000", { method: "GET" }),
+    );
+    const beforeBody = (await beforeRes.json()) as { items: Array<{ id: string }> };
+    expect(beforeBody.items.map((item) => item.id)).toEqual(["older"]);
+  });
+
   test("list rejects unknown origin filters", async () => {
     const res = await postsRoute.fetch(
       new Request("http://localhost/?origin=bogus", { method: "GET" }),

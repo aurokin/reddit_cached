@@ -71,6 +71,43 @@ describe("sync route", () => {
     }
   });
 
+  test("GET /runs returns an empty list before any sync has run", async () => {
+    const res = await syncRoute.fetch(makeSyncRequest("/runs"));
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ items: [] });
+  });
+
+  test("GET /runs reflects recorded sync provenance including saturation", async () => {
+    const ctx = getAppContext();
+    const id = ctx.storage.startSyncRun("saved", "full");
+    ctx.storage.finishSyncRun(id, {
+      status: "complete",
+      fetched: 42,
+      orphaned: 3,
+      saturated: true,
+    });
+
+    const res = await syncRoute.fetch(makeSyncRequest("/runs"));
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      items: Array<{
+        origin: string;
+        lastRun: { status: string; fetched: number; orphaned: number; saturated: boolean } | null;
+        lastCompleteFullAt: number | null;
+      }>;
+    };
+    expect(body.items).toHaveLength(1);
+    const saved = body.items[0];
+    expect(saved.origin).toBe("saved");
+    expect(saved.lastRun?.status).toBe("complete");
+    expect(saved.lastRun?.fetched).toBe(42);
+    expect(saved.lastRun?.orphaned).toBe(3);
+    expect(saved.lastRun?.saturated).toBe(true);
+    expect(saved.lastCompleteFullAt).not.toBeNull();
+  });
+
   test("accepts GET /fetch so EventSource clients hit the sync route", async () => {
     const res = await syncRoute.fetch(makeSyncRequest("/fetch?type=saved&full=false"));
 

@@ -235,6 +235,23 @@ describe("link index in SqliteAdapter", () => {
     expect(nonReddit.map((t) => t.host)).toEqual(["new.example.com"]);
   });
 
+  test("excludeReddit filters before the limit so reddit-heavy archives still fill the top-N", () => {
+    // Three distinct reddit links each referenced by two posts outrank the
+    // lone external link; a post-LIMIT filter would return zero rows here.
+    const posts = [];
+    for (let i = 0; i < 3; i++) {
+      posts.push(
+        makeLinkPost(`ra${i}`, { url: `https://i.redd.it/img${i}.png` }),
+        makeLinkPost(`rb${i}`, { body: `dupe https://i.redd.it/img${i}.png` }),
+      );
+    }
+    posts.push(makeLinkPost("ext1", { url: "https://example.com/tool" }));
+    adapter.upsertPosts(posts, "saved");
+
+    const top = adapter.topLinks({ excludeReddit: true, limit: 2 });
+    expect(top.map((t) => t.host)).toEqual(["example.com"]);
+  });
+
   test("searchLinks matches substrings and escapes LIKE wildcards", () => {
     adapter.upsertPosts(
       [

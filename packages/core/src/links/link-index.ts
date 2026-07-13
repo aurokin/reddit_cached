@@ -1,6 +1,6 @@
 import type { Database } from "bun:sqlite";
 import type { PostRow } from "../types";
-import { canonicalizeUrl, extractUrls, isRedditHost } from "./url-extract";
+import { canonicalizeUrl, extractUrls } from "./url-extract";
 
 /**
  * Derived index of every outbound link in stored posts, maintained inside the
@@ -128,6 +128,17 @@ export interface TopLinksOptions {
   limit?: number;
 }
 
+// SQL mirror of isRedditHost() — must exclude BEFORE the LIMIT, otherwise a
+// reddit-heavy archive fills the top-N with reddit links and the filter
+// returns fewer (often zero) rows than requested.
+const NOT_REDDIT_HOST_SQL = `(
+  host NOT IN ('reddit.com', 'redd.it', 'redditmedia.com', 'redditstatic.com')
+  AND host NOT LIKE '%.reddit.com'
+  AND host NOT LIKE '%.redd.it'
+  AND host NOT LIKE '%.redditmedia.com'
+  AND host NOT LIKE '%.redditstatic.com'
+)`;
+
 export function topLinks(db: Database, opts: TopLinksOptions = {}): TopLink[] {
   const where: string[] = [];
   const params: Array<string | number> = [];
@@ -135,9 +146,12 @@ export function topLinks(db: Database, opts: TopLinksOptions = {}): TopLink[] {
     where.push("created_utc >= ?");
     params.push(opts.since);
   }
+  if (opts.excludeReddit) {
+    where.push(NOT_REDDIT_HOST_SQL);
+  }
   params.push(Math.min(opts.limit ?? 25, 1000));
 
-  const rows = db
+  return db
     .query(
       `SELECT canonical_url, host,
               COUNT(DISTINCT post_id) AS postCount,
@@ -151,8 +165,6 @@ export function topLinks(db: Database, opts: TopLinksOptions = {}): TopLink[] {
        LIMIT ?`,
     )
     .all(...params) as TopLink[];
-
-  return opts.excludeReddit ? rows.filter((r) => !isRedditHost(r.host)) : rows;
 }
 
 export interface SearchLinksOptions {

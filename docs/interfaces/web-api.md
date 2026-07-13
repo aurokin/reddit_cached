@@ -13,7 +13,8 @@ machinery.
 | Auth | `/api/auth/status`, `/api/auth/login`, `/api/auth/logout`, session endpoints |
 | Posts | `/api/posts`, `/api/posts/search`, `/api/posts/:id`, post tag mutations |
 | Tags | `/api/tags` CRUD |
-| Sync | `/api/sync/status`, `/api/sync/fetch`, `/api/sync/cancel` |
+| Links | `/api/links` (top links; `since`, `excludeReddit`, `limit`), `/api/links/search?q=` |
+| Sync | `/api/sync/status`, `/api/sync/runs`, `/api/sync/fetch`, `/api/sync/cancel` |
 | Actions | `/api/unsave`, `/api/export`, `/api/health` |
 
 ## Notes
