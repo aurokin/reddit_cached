@@ -19,14 +19,14 @@ export function SyncControls() {
 
   return (
     <div
-      className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-3 text-sm"
+      className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3 text-sm"
       data-testid="sync-controls"
     >
       <select
         value={origin}
         onChange={(e) => setOrigin(e.target.value as ContentOrigin)}
         disabled={stream.isRunning}
-        className="h-9 rounded-md border border-[var(--color-input)] bg-transparent px-2 text-sm"
+        className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
         data-testid="sync-controls-origin"
         aria-label="Sync origin"
       >
@@ -69,14 +69,12 @@ export function SyncControls() {
         </Button>
       ) : null}
       {stream.latest ? (
-        <span className="text-xs text-[var(--color-muted-foreground)]">
+        <span className="text-xs text-muted-foreground">
           {stream.latest.phase}
           {stream.latest.fetched > 0 ? ` (${stream.latest.fetched})` : ""}
         </span>
       ) : null}
-      {stream.error ? (
-        <span className="text-xs text-[var(--color-destructive)]">{stream.error}</span>
-      ) : null}
+      {stream.error ? <span className="text-xs text-destructive">{stream.error}</span> : null}
     </div>
   );
 }

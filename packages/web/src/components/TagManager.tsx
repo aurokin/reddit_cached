@@ -56,19 +56,17 @@ export function TagManager() {
         </Button>
       </form>
       {error ? (
-        <p className="text-xs text-[var(--color-destructive)]" role="alert">
+        <p className="text-xs text-destructive" role="alert">
           {error}
         </p>
       ) : null}
 
       <ul className="flex flex-col gap-2">
-        {tags.length === 0 ? (
-          <li className="text-sm text-[var(--color-muted-foreground)]">No tags yet.</li>
-        ) : null}
+        {tags.length === 0 ? <li className="text-sm text-muted-foreground">No tags yet.</li> : null}
         {tags.map((tag) => (
           <li
             key={tag.id}
-            className="flex items-center justify-between gap-3 rounded-md border border-[var(--color-border)] p-2"
+            className="flex items-center justify-between gap-3 rounded-md border border-border p-2"
           >
             <div className="flex items-center gap-2">
               <Badge
@@ -77,7 +75,7 @@ export function TagManager() {
               >
                 #{tag.name}
               </Badge>
-              <span className="text-xs text-[var(--color-muted-foreground)]">
+              <span className="text-xs text-muted-foreground">
                 {tag.count} {tag.count === 1 ? "post" : "posts"}
               </span>
             </div>

@@ -100,10 +100,10 @@ export function MediaEmbed({ post }: { post: PostRow }) {
         href={post.url}
         target="_blank"
         rel="noreferrer noopener"
-        className="flex items-center justify-between gap-3 rounded-md border border-[var(--color-border)] bg-[var(--color-muted)] p-3 text-sm transition-colors hover:bg-[var(--color-accent)]"
+        className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted p-3 text-sm transition-colors hover:bg-accent"
       >
         <div className="flex flex-col gap-1 truncate">
-          <span className="text-xs text-[var(--color-muted-foreground)]">External link</span>
+          <span className="text-xs text-muted-foreground">External link</span>
           <span className="truncate font-mono text-xs">{post.url}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ export function MediaEmbed({ post }: { post: PostRow }) {
 
   if (imgError && isImagePost) {
     return (
-      <div className="flex h-48 items-center justify-center gap-2 rounded-md border border-dashed border-[var(--color-border)] text-[var(--color-muted-foreground)]">
+      <div className="flex h-48 items-center justify-center gap-2 rounded-md border border-dashed border-border text-muted-foreground">
         <ImageOff className="h-5 w-5" />
         <span>Image unavailable</span>
       </div>

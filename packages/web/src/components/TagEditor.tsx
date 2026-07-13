@@ -39,7 +39,7 @@ export function TagEditor({ post }: { post: PostRow }) {
     <div className="flex flex-col gap-2" data-testid="tag-editor">
       <div className="flex flex-wrap gap-1">
         {current.length === 0 ? (
-          <span className="text-xs text-[var(--color-muted-foreground)]">No tags yet</span>
+          <span className="text-xs text-muted-foreground">No tags yet</span>
         ) : (
           current.map((tag) => (
             <Badge key={tag} variant="secondary" className="gap-1">
@@ -48,7 +48,7 @@ export function TagEditor({ post }: { post: PostRow }) {
                 type="button"
                 onClick={() => removeTag.mutate(tag)}
                 aria-label={`Remove tag ${tag}`}
-                className="rounded-full hover:bg-[var(--color-accent)]"
+                className="rounded-full hover:bg-accent"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -81,7 +81,7 @@ export function TagEditor({ post }: { post: PostRow }) {
         </Button>
       </form>
       {error ? (
-        <p className="text-xs text-[var(--color-destructive)]" role="alert">
+        <p className="text-xs text-destructive" role="alert">
           {error}
         </p>
       ) : null}

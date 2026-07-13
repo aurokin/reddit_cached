@@ -1,8 +1,9 @@
 import { useSyncStream } from "@/hooks/queries";
-import { formatRelative } from "@/lib/utils";
+import { cn, formatRelative } from "@/lib/utils";
 import type { ContentOrigin, SyncRunSummary } from "@/types";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Card } from "../ui/card";
 
 const ORIGIN_LABELS: Record<ContentOrigin, string> = {
   saved: "Saved",
@@ -33,10 +34,8 @@ export function SyncHealthCard({
   const warn = lastRun !== null && (lastRun.saturated || summary?.lastCompleteFullAt === null);
 
   return (
-    <div
-      className={`flex flex-col gap-2 rounded-lg border p-3 text-sm ${
-        warn ? "border-amber-500/60" : "border-[var(--color-border)]"
-      } bg-[var(--color-card)]`}
+    <Card
+      className={cn("flex flex-col gap-2 p-3 text-sm", warn && "border-amber-500/60")}
       data-testid={`sync-health-${origin}`}
     >
       <div className="flex items-center justify-between">
@@ -51,7 +50,7 @@ export function SyncHealthCard({
           </Badge>
         )}
       </div>
-      <div className="text-xs text-[var(--color-muted-foreground)]">
+      <div className="text-xs text-muted-foreground">
         {lastRun ? (
           <>
             {lastRun.fetched} fetched · {lastRun.mode} ·{" "}
@@ -61,7 +60,7 @@ export function SyncHealthCard({
           "No sync recorded yet"
         )}
       </div>
-      <div className="text-xs text-[var(--color-muted-foreground)]">
+      <div className="text-xs text-muted-foreground">
         {activeCount !== undefined ? `${activeCount} in archive` : "—"}
       </div>
       {warn ? (
@@ -81,6 +80,6 @@ export function SyncHealthCard({
       >
         Sync
       </Button>
-    </div>
+    </Card>
   );
 }

@@ -3,6 +3,7 @@ import type { ContentOrigin } from "@/types";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { Card } from "../ui/card";
 
 const ORIGIN_LABELS: Record<ContentOrigin, string> = {
   saved: "Saved",
@@ -28,26 +29,20 @@ export function TodayStrip() {
   };
 
   return (
-    <div
-      className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm"
+    <Card
+      className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md px-3 py-2 text-sm"
       data-testid="today-strip"
     >
       <span className="font-medium">Last 24h</span>
       {digest.newByOrigin.map((o) => (
-        <span key={o.origin} className="text-[var(--color-muted-foreground)]">
+        <span key={o.origin} className="text-muted-foreground">
           {ORIGIN_LABELS[o.origin]}{" "}
-          <span className={o.count > 0 ? "font-medium text-[var(--color-foreground)]" : undefined}>
-            {o.count}
-          </span>
+          <span className={o.count > 0 ? "font-medium text-foreground" : undefined}>{o.count}</span>
         </span>
       ))}
-      <span className="text-[var(--color-muted-foreground)]">
+      <span className="text-muted-foreground">
         Inbox{" "}
-        <span
-          className={
-            digest.inbox.newCount > 0 ? "font-medium text-[var(--color-foreground)]" : undefined
-          }
-        >
+        <span className={digest.inbox.newCount > 0 ? "font-medium text-foreground" : undefined}>
           {digest.inbox.newCount}
         </span>
       </span>
@@ -61,6 +56,6 @@ export function TodayStrip() {
         {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
         <span className="ml-1">{copied ? "Copied" : "Copy as Markdown"}</span>
       </Button>
-    </div>
+    </Card>
   );
 }

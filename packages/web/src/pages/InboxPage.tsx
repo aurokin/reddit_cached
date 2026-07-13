@@ -65,7 +65,7 @@ export function InboxPage() {
         </label>
       </div>
 
-      <div className="flex flex-wrap gap-1 border-b border-[var(--color-border)] text-sm">
+      <div className="flex flex-wrap gap-1 border-b border-border text-sm">
         {TABS.map((tab) => {
           const active = search.type === tab.value;
           return (
@@ -75,8 +75,8 @@ export function InboxPage() {
               onClick={() => setFilters({ type: tab.value, unread: search.unread })}
               className={
                 active
-                  ? "border-b-2 border-[var(--color-primary)] px-3 py-1.5 font-medium"
-                  : "px-3 py-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+                  ? "border-b-2 border-primary px-3 py-1.5 font-medium"
+                  : "px-3 py-1.5 text-muted-foreground hover:text-foreground"
               }
               data-testid={`inbox-tab-${tab.value ?? "all"}`}
             >
@@ -95,7 +95,7 @@ export function InboxPage() {
       ) : inbox.isError ? (
         <ErrorState error={inbox.error} onRetry={() => inbox.refetch()} />
       ) : inbox.data && inbox.data.items.length > 0 ? (
-        <div className="flex flex-col divide-y divide-[var(--color-border)] rounded-lg border border-[var(--color-border)] bg-[var(--color-card)]">
+        <div className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card">
           {inbox.data.items.map((item) => {
             const isUnread = item.is_new === 1;
             const heading =
@@ -113,7 +113,7 @@ export function InboxPage() {
               >
                 <div className="flex items-baseline gap-2">
                   {isUnread ? (
-                    <span className="text-[var(--color-primary)]" aria-label="unread">
+                    <span className="text-primary" aria-label="unread">
                       ●
                     </span>
                   ) : null}
@@ -121,18 +121,14 @@ export function InboxPage() {
                     {TYPE_LABELS[item.type]} from u/{item.author ?? "[unknown]"}
                   </span>
                   {item.subreddit ? (
-                    <span className="text-xs text-[var(--color-muted-foreground)]">
-                      in r/{item.subreddit}
-                    </span>
+                    <span className="text-xs text-muted-foreground">in r/{item.subreddit}</span>
                   ) : null}
-                  <span className="ml-auto shrink-0 text-xs text-[var(--color-muted-foreground)]">
+                  <span className="ml-auto shrink-0 text-xs text-muted-foreground">
                     {formatRelative(item.created_utc)}
                   </span>
                 </div>
                 {heading ? (
-                  <div className="truncate text-xs text-[var(--color-muted-foreground)]">
-                    {heading}
-                  </div>
+                  <div className="truncate text-xs text-muted-foreground">{heading}</div>
                 ) : null}
                 {item.body ? <p className="line-clamp-2 text-sm">{item.body}</p> : null}
                 <div className="text-xs">
@@ -140,7 +136,7 @@ export function InboxPage() {
                     <Link
                       to="/post/$id"
                       params={{ id: item.storedPostId }}
-                      className="text-[var(--color-primary)] hover:underline"
+                      className="text-primary hover:underline"
                       data-testid="inbox-row-local"
                     >
                       View in archive →
@@ -150,7 +146,7 @@ export function InboxPage() {
                       href={externalHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[var(--color-muted-foreground)] hover:underline"
+                      className="text-muted-foreground hover:underline"
                       data-testid="inbox-row-external"
                     >
                       Open on Reddit <ExternalLink className="inline h-3 w-3" />

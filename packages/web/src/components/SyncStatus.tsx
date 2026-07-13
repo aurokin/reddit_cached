@@ -28,33 +28,31 @@ export function SyncStatus({
 
   return (
     <div
-      className="flex items-center gap-3 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm"
+      className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2 text-sm"
       data-testid={testId}
     >
       {running || isLoading ? (
-        <Loader2 className="h-4 w-4 animate-spin text-[var(--color-primary)]" />
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
       ) : (
-        <RefreshCw className="h-4 w-4 text-[var(--color-muted-foreground)]" />
+        <RefreshCw className="h-4 w-4 text-muted-foreground" />
       )}
       <div className="flex flex-col gap-0.5 text-xs">
-        <span className="text-[var(--color-muted-foreground)]">Last sync</span>
+        <span className="text-muted-foreground">Last sync</span>
         <span className="font-medium">{lastStr}</span>
       </div>
       {stream.latest ? (
-        <span className="ml-2 rounded bg-[var(--color-muted)] px-2 py-0.5 text-xs">
+        <span className="ml-2 rounded bg-muted px-2 py-0.5 text-xs">
           {stream.latest.phase} {stream.latest.fetched > 0 ? `(${stream.latest.fetched})` : ""}
         </span>
       ) : null}
-      {stream.error ? (
-        <span className="text-xs text-[var(--color-destructive)]">{stream.error}</span>
-      ) : null}
+      {stream.error ? <span className="text-xs text-destructive">{stream.error}</span> : null}
       {showControls ? (
         <div className="ml-auto flex gap-1">
           <select
             value={origin}
             onChange={(e) => setOrigin(e.target.value as ContentOrigin)}
             disabled={running}
-            className="h-8 rounded-md border border-[var(--color-input)] bg-transparent px-1.5 text-xs"
+            className="h-8 rounded-md border border-input bg-transparent px-1.5 text-xs"
             data-testid="sync-origin"
             aria-label="Sync origin"
           >

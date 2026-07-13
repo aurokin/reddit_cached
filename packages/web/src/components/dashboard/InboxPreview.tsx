@@ -2,6 +2,7 @@ import { formatRelative } from "@/lib/utils";
 import type { InboxItemType, TodayDigest } from "@/types";
 import { Link } from "@tanstack/react-router";
 import { Badge } from "../ui/badge";
+import { Card } from "../ui/card";
 
 const TYPE_LABELS: Record<InboxItemType, string> = {
   comment_reply: "reply",
@@ -16,28 +17,20 @@ export function InboxPreview({ digest }: { digest: TodayDigest | undefined }) {
   const items = inbox?.items.slice(0, 3) ?? [];
 
   return (
-    <div
-      className="flex flex-col gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4"
-      data-testid="inbox-preview"
-    >
+    <Card className="flex flex-col gap-3 p-4" data-testid="inbox-preview">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">Inbox</h3>
         <div className="flex items-center gap-2">
           {inbox && inbox.unreadCount > 0 ? (
             <Badge data-testid="inbox-unread-badge">{inbox.unreadCount} unread</Badge>
           ) : null}
-          <Link
-            to="/inbox"
-            className="text-xs text-[var(--color-muted-foreground)] hover:underline"
-          >
+          <Link to="/inbox" className="text-xs text-muted-foreground hover:underline">
             View all →
           </Link>
         </div>
       </div>
       {items.length === 0 ? (
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          No new replies, mentions, or messages.
-        </p>
+        <p className="text-sm text-muted-foreground">No new replies, mentions, or messages.</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {items.map((item) => (
@@ -46,29 +39,24 @@ export function InboxPreview({ digest }: { digest: TodayDigest | undefined }) {
               className="flex items-baseline gap-2 text-sm"
             >
               {item.isNew ? (
-                <span className="text-[var(--color-primary)]" aria-label="unread">
+                <span className="text-primary" aria-label="unread">
                   ●
                 </span>
               ) : null}
               <span className="min-w-0 flex-1 truncate">
-                <span className="text-[var(--color-muted-foreground)]">
-                  {TYPE_LABELS[item.type]} from
-                </span>{" "}
-                u/{item.author ?? "[unknown]"}
+                <span className="text-muted-foreground">{TYPE_LABELS[item.type]} from</span> u/
+                {item.author ?? "[unknown]"}
                 {item.subreddit ? (
-                  <span className="text-[var(--color-muted-foreground)]">
-                    {" "}
-                    in r/{item.subreddit}
-                  </span>
+                  <span className="text-muted-foreground"> in r/{item.subreddit}</span>
                 ) : null}
               </span>
-              <span className="shrink-0 text-xs text-[var(--color-muted-foreground)]">
+              <span className="shrink-0 text-xs text-muted-foreground">
                 {formatRelative(item.createdUtc)}
               </span>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </Card>
   );
 }

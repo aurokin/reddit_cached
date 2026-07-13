@@ -84,11 +84,11 @@ export function PostPage() {
       </div>
 
       <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted-foreground)]">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <Link
             to="/browse"
             search={{ subreddit: post.subreddit }}
-            className="font-medium text-[var(--color-foreground)] hover:underline"
+            className="font-medium text-foreground hover:underline"
           >
             r/{post.subreddit}
           </Link>
@@ -111,9 +111,9 @@ export function PostPage() {
         </div>
         <h1 className="text-2xl font-semibold leading-tight">{title}</h1>
         {post.link_title && isComment ? (
-          <p className="text-sm text-[var(--color-muted-foreground)]">On post: {post.link_title}</p>
+          <p className="text-sm text-muted-foreground">On post: {post.link_title}</p>
         ) : null}
-        <div className="flex items-center gap-4 text-xs text-[var(--color-muted-foreground)]">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <ThumbsUp className="h-3.5 w-3.5" />
             {formatNumber(post.score)}
@@ -135,13 +135,13 @@ export function PostPage() {
         </div>
       ) : null}
 
-      <section className="flex flex-col gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+      <section className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
         <h2 className="text-sm font-semibold">Tags</h2>
         <TagEditor post={post} />
       </section>
 
       {unsaveError ? (
-        <p className="text-sm text-[var(--color-destructive)]" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {unsaveError}
         </p>
       ) : null}

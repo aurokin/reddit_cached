@@ -41,14 +41,14 @@ export function LinksPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search URLs…"
-            className="h-9 w-56 rounded-md border border-[var(--color-input)] bg-transparent px-2 text-sm"
+            className="h-9 w-56 rounded-md border border-input bg-transparent px-2 text-sm"
             data-testid="links-search"
           />
           <select
             value={window}
             onChange={(e) => setWindow(e.target.value)}
             disabled={searching}
-            className="h-9 rounded-md border border-[var(--color-input)] bg-transparent px-2 text-sm"
+            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
             data-testid="links-window"
             aria-label="Time window"
           >
@@ -82,7 +82,7 @@ export function LinksPage() {
       ) : top.isError ? (
         <ErrorState error={top.error} onRetry={() => top.refetch()} />
       ) : top.data && top.data.items.length > 0 ? (
-        <div className="flex flex-col divide-y divide-[var(--color-border)] rounded-lg border border-[var(--color-border)] bg-[var(--color-card)]">
+        <div className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card">
           {top.data.items.map((link) => (
             <TopLinkRow key={link.canonical_url} link={link} />
           ))}
@@ -119,15 +119,13 @@ function TopLinkRow({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+          className="text-muted-foreground hover:text-foreground"
           aria-label={expanded ? "Collapse" : "Expand"}
           data-testid="link-expand"
         >
           {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
-        <span className="w-40 shrink-0 truncate text-xs text-[var(--color-muted-foreground)]">
-          {link.host}
-        </span>
+        <span className="w-40 shrink-0 truncate text-xs text-muted-foreground">{link.host}</span>
         <a
           href={link.sampleUrl}
           target="_blank"
@@ -136,15 +134,15 @@ function TopLinkRow({
           title={link.canonical_url}
         >
           {link.canonical_url}
-          <ExternalLink className="ml-1 inline h-3 w-3 text-[var(--color-muted-foreground)]" />
+          <ExternalLink className="ml-1 inline h-3 w-3 text-muted-foreground" />
         </a>
-        <span className="shrink-0 text-xs text-[var(--color-muted-foreground)]">
+        <span className="shrink-0 text-xs text-muted-foreground">
           {link.postCount} post{link.postCount === 1 ? "" : "s"} · {link.occurrenceCount} occ ·{" "}
           {formatRelative(link.lastSeen)}
         </span>
       </div>
       {expanded ? (
-        <div className="border-t border-[var(--color-border)] bg-[var(--color-background)] px-10 py-2">
+        <div className="border-t border-border bg-background px-10 py-2">
           {referencing.isLoading ? (
             <Skeleton className="h-6 w-full" />
           ) : referencing.data && referencing.data.items.length > 0 ? (
@@ -154,14 +152,14 @@ function TopLinkRow({
                   <Link to="/post/$id" params={{ id: row.post_id }} className="hover:underline">
                     {row.title ?? row.post_id}
                   </Link>
-                  <span className="ml-1 text-xs text-[var(--color-muted-foreground)]">
+                  <span className="ml-1 text-xs text-muted-foreground">
                     r/{row.subreddit} · {row.source}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-xs text-[var(--color-muted-foreground)]">No referencing posts.</p>
+            <p className="text-xs text-muted-foreground">No referencing posts.</p>
           )}
         </div>
       ) : null}
@@ -194,16 +192,14 @@ function SearchResults({
     );
   }
   return (
-    <div className="flex flex-col divide-y divide-[var(--color-border)] rounded-lg border border-[var(--color-border)] bg-[var(--color-card)]">
+    <div className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card">
       {rows.map((row) => (
         <div
           key={`${row.post_id}-${row.source}-${row.position}`}
           className="flex items-center gap-3 px-3 py-2 text-sm"
           data-testid="link-search-row"
         >
-          <span className="w-40 shrink-0 truncate text-xs text-[var(--color-muted-foreground)]">
-            {row.host}
-          </span>
+          <span className="w-40 shrink-0 truncate text-xs text-muted-foreground">{row.host}</span>
           <a
             href={row.url}
             target="_blank"
@@ -211,12 +207,12 @@ function SearchResults({
             className="min-w-0 flex-1 truncate hover:underline"
           >
             {row.canonical_url}
-            <ExternalLink className="ml-1 inline h-3 w-3 text-[var(--color-muted-foreground)]" />
+            <ExternalLink className="ml-1 inline h-3 w-3 text-muted-foreground" />
           </a>
           <Link
             to="/post/$id"
             params={{ id: row.post_id }}
-            className="shrink-0 text-xs text-[var(--color-muted-foreground)] hover:underline"
+            className="shrink-0 text-xs text-muted-foreground hover:underline"
           >
             {row.title ? `${row.title.slice(0, 40)}…` : row.post_id} →
           </Link>

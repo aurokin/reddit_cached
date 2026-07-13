@@ -53,7 +53,7 @@ export function FilterPanel({
 
   return (
     <aside
-      className="flex w-full max-w-xs flex-col gap-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4"
+      className="flex w-full max-w-xs flex-col gap-4 rounded-lg border border-border bg-card p-4"
       data-testid="filter-panel"
     >
       <div className="flex items-center justify-between">

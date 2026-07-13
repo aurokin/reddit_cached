@@ -13,14 +13,10 @@ export function EmptyState({
   icon?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-[var(--color-border)] bg-[var(--color-card)] p-12 text-center">
-      <div className="text-[var(--color-muted-foreground)]">
-        {icon ?? <Inbox className="h-8 w-8" />}
-      </div>
+    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card p-12 text-center">
+      <div className="text-muted-foreground">{icon ?? <Inbox className="h-8 w-8" />}</div>
       <h3 className="text-base font-semibold">{title}</h3>
-      {description ? (
-        <p className="max-w-sm text-sm text-[var(--color-muted-foreground)]">{description}</p>
-      ) : null}
+      {description ? <p className="max-w-sm text-sm text-muted-foreground">{description}</p> : null}
       {action}
     </div>
   );

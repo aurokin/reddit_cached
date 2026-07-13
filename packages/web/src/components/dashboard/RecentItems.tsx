@@ -14,7 +14,7 @@ export function RecentItems() {
     <section>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold">Recent</h2>
-        <Link to="/browse" className="text-sm text-[var(--color-muted-foreground)] hover:underline">
+        <Link to="/browse" className="text-sm text-muted-foreground hover:underline">
           Browse all →
         </Link>
       </div>

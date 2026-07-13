@@ -60,6 +60,15 @@ test.describe("smoke", () => {
     await expect(page.getByTestId("export-markdown")).toBeVisible();
   });
 
+  test("mobile viewport shows hamburger nav and search row", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await expect(page.getByTestId("nav-mobile")).toBeVisible();
+    await expect(page.getByTestId("search-input-mobile")).toBeVisible();
+    await page.getByTestId("nav-mobile").click();
+    await expect(page.getByTestId("nav-mobile-inbox")).toBeVisible();
+  });
+
   test("dark mode toggle swaps icon", async ({ page }) => {
     await page.goto("/");
     const toggle = page.getByTestId("dark-mode-toggle");

@@ -27,14 +27,14 @@ export function HomePage() {
       <SyncStatus />
 
       {auth.data && auth.data.authenticated === false && !auth.data.testMode ? (
-        <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4 text-sm">
+        <div className="rounded-lg border border-border bg-card p-4 text-sm">
           <p className="mb-2 font-medium">Not signed in to Reddit</p>
-          <p className="mb-3 text-[var(--color-muted-foreground)]">
+          <p className="mb-3 text-muted-foreground">
             Sign in to fetch your saved posts. Everything stays on your machine.
           </p>
           <Link
             to="/login"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--color-primary)] px-3 text-sm font-medium text-[var(--color-primary-foreground)] hover:opacity-90"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
           >
             Sign in
           </Link>
@@ -78,19 +78,17 @@ export function HomePage() {
                 key={tag.name}
                 to="/browse"
                 search={{ tag: tag.name }}
-                className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1 text-xs hover:border-[var(--color-ring)]"
+                className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-xs hover:border-ring"
                 style={tag.color ? { borderColor: tag.color } : undefined}
               >
                 <TagIcon className="h-3 w-3" />
                 <span>{tag.name}</span>
-                <span className="text-[var(--color-muted-foreground)]">({tag.count})</span>
+                <span className="text-muted-foreground">({tag.count})</span>
               </Link>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-[var(--color-muted-foreground)]">
-            No tags yet. Open a post to add one.
-          </p>
+          <p className="text-sm text-muted-foreground">No tags yet. Open a post to add one.</p>
         )}
       </section>
     </div>

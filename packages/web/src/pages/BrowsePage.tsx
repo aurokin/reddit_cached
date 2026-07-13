@@ -117,7 +117,7 @@ export function BrowsePage() {
           <div className="flex-1">
             <SearchBar value={filters.q ?? ""} onSearch={onSearch} />
           </div>
-          <div className="text-xs text-[var(--color-muted-foreground)]">
+          <div className="text-xs text-muted-foreground">
             {active.isLoading
               ? "Loading…"
               : isSearch
@@ -155,8 +155,8 @@ export function BrowsePage() {
               }
             />
             {total > PAGE_SIZE ? (
-              <div className="flex items-center justify-between rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-xs">
-                <span className="text-[var(--color-muted-foreground)]">
+              <div className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2 text-xs">
+                <span className="text-muted-foreground">
                   Page {page} of {totalPages}
                 </span>
                 <div className="flex gap-2">

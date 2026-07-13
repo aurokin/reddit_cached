@@ -14,7 +14,7 @@ export function TagChips({
       {tags.map((tag) =>
         linkable ? (
           <Link key={tag} to="/browse" search={{ tag }} className="no-underline">
-            <Badge variant="secondary" className="cursor-pointer hover:bg-[var(--color-accent)]">
+            <Badge variant="secondary" className="cursor-pointer hover:bg-accent">
               #{tag}
             </Badge>
           </Link>

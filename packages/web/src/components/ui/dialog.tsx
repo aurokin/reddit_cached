@@ -33,7 +33,7 @@ export const DialogContent = forwardRef<
       ref={ref}
       className={cn(
         "fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2",
-        "rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-lg",
+        "rounded-lg border border-border bg-card p-6 shadow-lg",
         className,
       )}
       {...props}
@@ -77,7 +77,7 @@ export const DialogDescription = forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-[var(--color-muted-foreground)]", className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ));

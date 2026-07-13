@@ -52,18 +52,18 @@ export function LoginPage() {
     <div className="mx-auto flex max-w-md flex-col gap-4" data-testid="login-page">
       <header>
         <h1 className="text-xl font-semibold">Connect to Reddit</h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           Reddit no longer accepts new API app registrations. Install the companion browser
           extension instead — it forwards your existing reddit.com session to this app, on your
           machine only.
         </p>
       </header>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+      <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Plug className="h-4 w-4" /> Step 1 — Install the extension
         </div>
-        <ol className="ml-5 list-decimal text-xs text-[var(--color-muted-foreground)]">
+        <ol className="ml-5 list-decimal text-xs text-muted-foreground">
           <li>
             Open <code>packages/extension</code> in this repo.
           </li>
@@ -83,12 +83,12 @@ export function LoginPage() {
         <div className="flex items-center gap-2 text-sm font-medium">
           <Chrome className="h-4 w-4" /> Step 2 — Wait for the handshake
         </div>
-        <p className="text-xs text-[var(--color-muted-foreground)]">
+        <p className="text-xs text-muted-foreground">
           Set the extension’s local app URL if you are not using the default server port. It syncs
           on install, on browser startup, when reddit.com cookies change, and every 30 minutes.
         </p>
 
-        <div className="rounded-md border border-dashed border-[var(--color-border)] p-3 text-xs">
+        <div className="rounded-md border border-dashed border-border p-3 text-xs">
           {session.isLoading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> Checking…
@@ -124,11 +124,11 @@ export function LoginPage() {
       </section>
 
       <details
-        className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4 text-sm"
+        className="rounded-lg border border-border bg-card p-4 text-sm"
         open={showOAuth}
         onToggle={(e) => setShowOAuth((e.currentTarget as HTMLDetailsElement).open)}
       >
-        <summary className="cursor-pointer text-xs text-[var(--color-muted-foreground)]">
+        <summary className="cursor-pointer text-xs text-muted-foreground">
           Have a registered Reddit OAuth app? Use that instead
         </summary>
 
@@ -143,7 +143,7 @@ export function LoginPage() {
                 <ExternalLink className="h-4 w-4" /> Reopen authorize URL
               </a>
             </Button>
-            <div className="flex items-center gap-2 text-xs text-[var(--color-muted-foreground)]">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> Waiting for Reddit…
             </div>
           </div>
@@ -180,7 +180,7 @@ export function LoginPage() {
       </details>
 
       <p className="text-center text-xs">
-        <Link to="/" className="text-[var(--color-muted-foreground)] hover:underline">
+        <Link to="/" className="text-muted-foreground hover:underline">
           ← Back to home
         </Link>
       </p>

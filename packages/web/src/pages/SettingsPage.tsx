@@ -46,7 +46,7 @@ export function SettingsPage() {
     <div className="flex flex-col gap-8" data-testid="settings-page">
       <section className="flex flex-col gap-3">
         <h1 className="text-xl font-semibold">Settings</h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           Manage your Reddit account, sync state, tags, and exports.
         </p>
       </section>
@@ -56,14 +56,14 @@ export function SettingsPage() {
         {auth.isLoading ? (
           <p className="text-sm">Checking status…</p>
         ) : auth.data?.authenticated && auth.data.mode === "session" ? (
-          <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
             <div className="flex flex-col gap-1">
               <p className="text-sm">
                 <Plug className="mr-1 inline h-4 w-4" />
                 Connected as <span className="font-medium">{auth.data.username ?? "unknown"}</span>{" "}
                 via the companion extension.
               </p>
-              <p className="text-xs text-[var(--color-muted-foreground)]">
+              <p className="text-xs text-muted-foreground">
                 Cookies last refreshed{" "}
                 {formatRelative(auth.data.capturedAt ?? session.data?.capturedAt)}.
               </p>
@@ -78,7 +78,7 @@ export function SettingsPage() {
             </Button>
           </div>
         ) : auth.data?.authenticated ? (
-          <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
             <div>
               <p className="text-sm">
                 Signed in as{" "}
@@ -88,7 +88,7 @@ export function SettingsPage() {
                 via OAuth.
               </p>
               {auth.data.testMode ? (
-                <p className="text-xs text-[var(--color-muted-foreground)]">
+                <p className="text-xs text-muted-foreground">
                   Running in TEST_MODE. OAuth and Reddit writes are stubbed.
                 </p>
               ) : null}
@@ -103,7 +103,7 @@ export function SettingsPage() {
             </Button>
           </div>
         ) : session.data?.blocked ? (
-          <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
             <p className="text-sm">
               Extension sync is disconnected. Use Reconnect to allow the extension to hand your
               reddit.com session back to the app.
@@ -113,7 +113,7 @@ export function SettingsPage() {
             </Button>
           </div>
         ) : (
-          <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
             <p className="text-sm">
               Not connected. Install the companion extension to forward your reddit.com session.
             </p>
@@ -141,9 +141,9 @@ export function SettingsPage() {
       <section className="flex flex-col gap-3">
         <h2 className="text-base font-semibold">Sync history</h2>
         {runs.data && runs.data.items.length > 0 ? (
-          <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-left text-sm" data-testid="sync-runs-table">
-              <thead className="bg-[var(--color-muted)] text-xs uppercase text-[var(--color-muted-foreground)]">
+              <thead className="bg-muted text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="px-3 py-2">Origin</th>
                   <th className="px-3 py-2">Status</th>
@@ -155,7 +155,7 @@ export function SettingsPage() {
               </thead>
               <tbody>
                 {runs.data.items.map((run) => (
-                  <tr key={run.origin} className="border-t border-[var(--color-border)]">
+                  <tr key={run.origin} className="border-t border-border">
                     <td className="px-3 py-2 font-medium">{run.origin}</td>
                     <td className="px-3 py-2">
                       {run.lastRun?.status ?? "—"}
@@ -173,19 +173,19 @@ export function SettingsPage() {
             </table>
           </div>
         ) : (
-          <p className="text-sm text-[var(--color-muted-foreground)]">No sync runs recorded yet.</p>
+          <p className="text-sm text-muted-foreground">No sync runs recorded yet.</p>
         )}
       </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-base font-semibold">Scheduled jobs</h2>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           Pipeline runs from <code>reddit-saved jobs run</code> (manual or launchd).
         </p>
         {jobs.data && jobs.data.items.length > 0 ? (
-          <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-left text-sm" data-testid="job-runs-table">
-              <thead className="bg-[var(--color-muted)] text-xs uppercase text-[var(--color-muted-foreground)]">
+              <thead className="bg-muted text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="px-3 py-2">Started</th>
                   <th className="px-3 py-2">Status</th>
@@ -195,7 +195,7 @@ export function SettingsPage() {
               </thead>
               <tbody>
                 {jobs.data.items.map((run) => (
-                  <tr key={run.id} className="border-t border-[var(--color-border)]">
+                  <tr key={run.id} className="border-t border-border">
                     <td className="px-3 py-2">{formatRelative(run.startedAt)}</td>
                     <td className="px-3 py-2">{run.status}</td>
                     <td className="px-3 py-2">{run.trigger}</td>
@@ -210,7 +210,7 @@ export function SettingsPage() {
             </table>
           </div>
         ) : (
-          <p className="text-sm text-[var(--color-muted-foreground)]">
+          <p className="text-sm text-muted-foreground">
             No pipeline runs yet. Install the hourly agent with{" "}
             <code>reddit-saved jobs install-launchd</code>.
           </p>
@@ -219,7 +219,7 @@ export function SettingsPage() {
 
       <section className="flex flex-col gap-3">
         <h2 className="text-base font-semibold">Export</h2>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           Download a copy of your archive in JSON, CSV, or Markdown.
         </p>
         <div className="flex gap-2">
@@ -249,8 +249,8 @@ export function SettingsPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-card)] p-3">
-      <div className="text-[var(--color-muted-foreground)]">{label}</div>
+    <div className="rounded-md border border-border bg-card p-3">
+      <div className="text-muted-foreground">{label}</div>
       <div className="text-lg font-semibold">{value.toLocaleString()}</div>
     </div>
   );

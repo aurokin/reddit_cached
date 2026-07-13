@@ -4,10 +4,24 @@ import { ErrorState } from "@/components/ErrorState";
 import { SearchBar } from "@/components/SearchBar";
 import { SyncStatus } from "@/components/SyncStatus";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { BrowseFilters } from "@/types";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bookmark, Settings } from "lucide-react";
+import { Bookmark, Menu, Settings } from "lucide-react";
 import { type ReactNode, Suspense } from "react";
+
+const NAV_ITEMS = [
+  { to: "/", label: "Home" },
+  { to: "/browse", label: "Browse" },
+  { to: "/links", label: "Links" },
+  { to: "/inbox", label: "Inbox" },
+  { to: "/settings", label: "Settings" },
+] as const;
 
 export function RootLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
@@ -30,11 +44,33 @@ export function RootLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-background)] text-[var(--color-foreground)]">
-      <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-background)]/95 backdrop-blur">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="md:hidden"
+                aria-label="Menu"
+                data-testid="nav-mobile"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {NAV_ITEMS.map((item) => (
+                <DropdownMenuItem key={item.to} asChild>
+                  <Link to={item.to} data-testid={`nav-mobile-${item.label.toLowerCase()}`}>
+                    {item.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Link to="/" className="flex items-center gap-2 font-semibold">
-            <Bookmark className="h-5 w-5 text-[var(--color-primary)]" />
+            <Bookmark className="h-5 w-5 text-primary" />
             <span>Reddit Saved</span>
           </Link>
 
@@ -77,6 +113,9 @@ export function RootLayout({ children }: { children: ReactNode }) {
             </Button>
           </div>
         </div>
+        <div className="mx-auto w-full max-w-7xl px-4 pb-2 md:hidden">
+          <SearchBar onSearch={onSearch} testId="search-input-mobile" />
+        </div>
         <div className="mx-auto w-full max-w-7xl px-4 pb-2">
           <SyncStatus showControls={false} testId="sync-status-header" />
         </div>
@@ -88,7 +127,7 @@ export function RootLayout({ children }: { children: ReactNode }) {
         </ErrorBoundary>
       </main>
 
-      <footer className="border-t border-[var(--color-border)] py-4 text-center text-xs text-[var(--color-muted-foreground)]">
+      <footer className="border-t border-border py-4 text-center text-xs text-muted-foreground">
         Reddit Saved · local archive
       </footer>
     </div>
@@ -97,6 +136,6 @@ export function RootLayout({ children }: { children: ReactNode }) {
 
 function navClass(active: boolean): string {
   return active
-    ? "rounded px-2 py-1 font-medium text-[var(--color-foreground)]"
-    : "rounded px-2 py-1 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]";
+    ? "rounded px-2 py-1 font-medium text-foreground"
+    : "rounded px-2 py-1 text-muted-foreground hover:text-foreground";
 }

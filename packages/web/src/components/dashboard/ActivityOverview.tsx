@@ -1,5 +1,6 @@
 import type { ContentOrigin, TodayDigest } from "@/types";
 import { Link } from "@tanstack/react-router";
+import { Card } from "../ui/card";
 
 const ORIGIN_LABELS: Record<ContentOrigin, string> = {
   saved: "Saved",
@@ -13,19 +14,16 @@ export function ActivityOverview({ digest }: { digest: TodayDigest | undefined }
   const active = digest?.newByOrigin.filter((o) => o.count > 0) ?? [];
 
   return (
-    <div
-      className="flex flex-col gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4"
-      data-testid="activity-overview"
-    >
+    <Card className="flex flex-col gap-3 p-4" data-testid="activity-overview">
       <h3 className="text-sm font-semibold">Activity</h3>
       {active.length === 0 ? (
-        <p className="text-sm text-[var(--color-muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           Nothing new reached the archive in the last 24h.
         </p>
       ) : (
         active.map((section) => (
           <div key={section.origin}>
-            <div className="mb-1 text-xs uppercase text-[var(--color-muted-foreground)]">
+            <div className="mb-1 text-xs uppercase text-muted-foreground">
               {ORIGIN_LABELS[section.origin]} ({section.count})
             </div>
             <ul className="flex flex-col gap-1">
@@ -39,7 +37,7 @@ export function ActivityOverview({ digest }: { digest: TodayDigest | undefined }
                   >
                     {item.title}
                   </Link>
-                  <span className="ml-1 text-xs text-[var(--color-muted-foreground)]">
+                  <span className="ml-1 text-xs text-muted-foreground">
                     r/{item.subreddit} · {item.score}
                   </span>
                 </li>
@@ -48,6 +46,6 @@ export function ActivityOverview({ digest }: { digest: TodayDigest | undefined }
           </div>
         ))
       )}
-    </div>
+    </Card>
   );
 }

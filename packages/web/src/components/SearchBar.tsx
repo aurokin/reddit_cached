@@ -9,12 +9,14 @@ export function SearchBar({
   placeholder = "Search saved posts...",
   debounceMs = 250,
   autoFocus,
+  testId = "search-input",
 }: {
   value?: string;
   onSearch: (query: string) => void;
   placeholder?: string;
   debounceMs?: number;
   autoFocus?: boolean;
+  testId?: string;
 }) {
   const [input, setInput] = useState(value ?? "");
   const latestOnSearch = useRef(onSearch);
@@ -42,7 +44,7 @@ export function SearchBar({
 
   return (
     <div className="relative w-full max-w-xl">
-      <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
+      <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         type="search"
         value={input}
@@ -51,7 +53,7 @@ export function SearchBar({
         onChange={(e) => setInput(e.currentTarget.value)}
         className="h-9 pl-8"
         aria-label="Search"
-        data-testid="search-input"
+        data-testid={testId}
       />
     </div>
   );
