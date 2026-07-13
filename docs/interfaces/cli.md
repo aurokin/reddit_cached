@@ -36,6 +36,9 @@ reddit-saved backup status
 - CLI auth commands manage the legacy OAuth file, `auth.json`. The web app's
   companion-extension session files, `session.json` and `session.blocked.json`,
   are managed from the local web app.
+- Fetch commands use whichever auth is available, preferring the extension
+  session over OAuth (same priority as the web app) — connecting the browser
+  extension is enough to use `fetch` and `fetch context` from the CLI.
 - `auth login` prints the Reddit authorization URL by default. Pass
   `--open-browser` or set `REDDIT_SAVED_OPEN_BROWSER=1` to launch it
   automatically.

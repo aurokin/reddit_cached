@@ -7,10 +7,12 @@
 
 import {
   type ApiClientCallbacks,
+  type AuthProvider,
   type AuthSettings,
   PerformanceMonitor,
   RedditApiClient,
   RequestQueue,
+  SessionManager,
   SqliteAdapter,
   TagManager,
   TokenManager,
@@ -46,18 +48,37 @@ export async function createContext(opts: ContextOptions = {}): Promise<CliConte
 
   const needsAuth = opts.needsAuth || opts.needsApi;
 
+  // Session (extension cookie) auth wins when present, matching the web app's
+  // priority — it represents an explicit choice to install the companion
+  // extension. OAuth auth.json remains the fallback.
+  let authProvider: AuthProvider = tokenManager;
+
   if (needsAuth) {
-    let settings: AuthSettings | null;
+    const sessionManager = new SessionManager();
     try {
-      settings = await tokenManager.load();
-    } catch (err) {
-      storage.close();
-      throw err;
+      await sessionManager.load();
+    } catch {
+      // Missing/corrupt session.json is normal for OAuth users — fall through
     }
-    if (!settings) {
-      printError("Not authenticated. Run 'reddit-saved auth login' first.", "AUTH_REQUIRED");
-      storage.close();
-      process.exit(2);
+
+    if (sessionManager.isAuthenticated()) {
+      authProvider = sessionManager;
+    } else {
+      let settings: AuthSettings | null;
+      try {
+        settings = await tokenManager.load();
+      } catch (err) {
+        storage.close();
+        throw err;
+      }
+      if (!settings) {
+        printError(
+          "Not authenticated. Connect the browser extension or run 'reddit-saved auth login'.",
+          "AUTH_REQUIRED",
+        );
+        storage.close();
+        process.exit(2);
+      }
     }
   }
 
@@ -85,7 +106,7 @@ export async function createContext(opts: ContextOptions = {}): Promise<CliConte
       },
     };
 
-    apiClient = new RedditApiClient(tokenManager, queue, callbacks);
+    apiClient = new RedditApiClient(authProvider, queue, callbacks);
   }
 
   return {

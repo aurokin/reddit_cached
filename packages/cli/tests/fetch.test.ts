@@ -1097,6 +1097,50 @@ describe("fetch command", () => {
     }
   });
 
+  test("fetches using the extension session when no OAuth auth.json exists", async () => {
+    // Replace OAuth credentials with an extension session
+    rmSync(join(tempDir, "reddit-saved", "auth.json"), { force: true });
+    writeFileSync(
+      join(tempDir, "reddit-saved", "session.json"),
+      JSON.stringify({
+        cookieHeader: "reddit_session=abc123",
+        userAgent: "test-agent",
+        modhash: "",
+        username: "sessionuser",
+        capturedAt: Date.now(),
+      }),
+    );
+
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+      if (url.includes("/api/me")) {
+        // Cookie-mode /api/me.json wraps the identity in { data: ... }
+        return Response.json(
+          { data: { name: "sessionuser", modhash: "" } },
+          { headers: rateHeaders },
+        );
+      }
+      if (url.includes("/user/") && url.includes("/saved")) {
+        expect(url).toContain("sessionuser");
+        return Response.json(makeRedditListingResponse([{ id: "sess1" }], null), {
+          headers: rateHeaders,
+        });
+      }
+      return new Response("Not Found", { status: 404 });
+    }) as typeof fetch;
+
+    const { fetchCmd } = await import("../src/commands/fetch");
+    const cap = captureConsole();
+    try {
+      await fetchCmd({ db: dbPath }, []);
+      const output = JSON.parse(cap.logs[0]);
+      expect(output.fetched).toBe(1);
+    } finally {
+      cap.restore();
+    }
+  });
+
   test("--all with an explicit --type exits with an error", async () => {
     const { fetchCmd } = await import("../src/commands/fetch");
     const cap = captureConsole();

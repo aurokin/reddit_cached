@@ -73,8 +73,9 @@ Auth login options:
   REDDIT_SAVED_OPEN_BROWSER=1 also enables automatic browser launch
 
 Auth note:
-  CLI auth commands manage legacy OAuth auth.json. Web extension session auth
-  uses session.json and is managed from the local web app.
+  Fetch commands prefer the browser-extension session (session.json) and fall
+  back to OAuth (auth.json). CLI auth commands manage only the OAuth file;
+  the extension session is managed from the local web app.
 `;
 
 async function main(): Promise<void> {
