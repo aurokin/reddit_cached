@@ -12,13 +12,15 @@ export const DEFAULT_JOBS_INTERVAL_SECONDS = 3600;
 
 const LAUNCHD_PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
 
-/** Argv for running `jobs run` under launchd. When the CLI runs as a script
- *  (`bun src/index.ts`), mainPath is that script and execPath is the bun
- *  binary; a compiled single-file binary IS the CLI, so mainPath is dropped. */
+/** Argv for running `jobs run` under a scheduler. When the CLI runs as a
+ *  script (`bun src/index.ts`), mainPath is that script and execPath is the
+ *  bun binary; a compiled single-file binary IS the CLI, so mainPath is
+ *  dropped. Also used by systemd.ts with trigger "systemd". */
 export function resolveJobsProgramArguments(opts: {
   execPath: string;
   mainPath: string;
   steps?: string[];
+  trigger?: "launchd" | "systemd";
 }): string[] {
   const isScript = /\.(ts|js|mjs|cjs)$/.test(opts.mainPath);
   return [
@@ -27,7 +29,7 @@ export function resolveJobsProgramArguments(opts: {
     "jobs",
     "run",
     "--trigger",
-    "launchd",
+    opts.trigger ?? "launchd",
     ...(opts.steps && opts.steps.length > 0 ? ["--steps", opts.steps.join(",")] : []),
   ];
 }

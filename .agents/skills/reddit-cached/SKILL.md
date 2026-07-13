@@ -63,8 +63,10 @@ provenance), and `resumeCursors`. All commands emit JSON by default; pass
   capture context → sync inbox → backup, skipping backup when unconfigured).
   `reddit-cached jobs status` shows recent pipeline runs; a file lock makes
   overlapping runs skip cleanly. On macOS, `reddit-cached jobs install-launchd`
-  schedules it hourly (`reddit-cached jobs uninstall-launchd` removes it) — so
-  the archive is usually already fresh.
+  schedules it hourly (`reddit-cached jobs uninstall-launchd` removes it); on
+  Linux, `reddit-cached jobs install-systemd` does the same via systemd user
+  units (`reddit-cached jobs uninstall-systemd` removes them) — so the archive
+  is usually already fresh.
 
 ## Quality Filter
 

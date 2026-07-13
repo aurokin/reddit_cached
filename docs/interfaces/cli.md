@@ -33,6 +33,8 @@ reddit-cached jobs run [--steps fetch,context,inbox,backup] [--limit N] [--trigg
 reddit-cached jobs status [--limit N]
 reddit-cached jobs install-launchd [--interval-seconds N] [--steps <list>] [--label <name>] [--no-load]
 reddit-cached jobs uninstall-launchd [--label <name>]
+reddit-cached jobs install-systemd [--interval-seconds N] [--steps <list>] [--unit-name <name>] [--no-enable]
+reddit-cached jobs uninstall-systemd [--unit-name <name>]
 ```
 
 ## Notes
@@ -99,6 +101,15 @@ reddit-cached jobs uninstall-launchd [--label <name>]
   load) and loads it via `launchctl load -w`. Logs land in the data
   directory's `logs/` folder. Re-running the command re-installs with the new
   settings; `jobs uninstall-launchd` unloads and deletes the plist.
+- `jobs install-systemd` (Linux only) is the systemd sibling of
+  `install-launchd`: it writes `~/.config/systemd/user/reddit-cached-jobs.service`
+  and `.timer` units running `jobs run --trigger systemd` every
+  `--interval-seconds` (default hourly, plus two minutes after boot), then
+  enables the timer via `systemctl --user enable --now` unless `--no-enable`
+  (enable failures are tolerated with a warning — the units are still on
+  disk). Output goes to the user journal (`journalctl --user -u
+  reddit-cached-jobs.service`), not log files. `jobs uninstall-systemd`
+  disables the timer and removes both units.
 - Each fetch writes a per-origin resume checkpoint
   (`.reddit-import-checkpoint.<origin>.json` next to the database) and records
   provenance in the `sync_runs` table; `status` reports the latest run per

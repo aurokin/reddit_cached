@@ -55,7 +55,14 @@ const SUBCOMMANDS: Record<string, Set<string>> = {
   fetch: new Set(["context", "inbox"]),
   links: new Set(["top", "search", "rebuild"]),
   backup: new Set(["init", "sync", "status"]),
-  jobs: new Set(["run", "status", "install-launchd", "uninstall-launchd"]),
+  jobs: new Set([
+    "run",
+    "status",
+    "install-launchd",
+    "uninstall-launchd",
+    "install-systemd",
+    "uninstall-systemd",
+  ]),
 };
 
 /** Flags that are always boolean — never consume the next argument as a value */
@@ -80,6 +87,7 @@ const BOOLEAN_FLAGS = new Set([
   "json",
   "unread",
   "no-load",
+  "no-enable",
 ]);
 
 export function parseArgs(argv: string[]): ParsedArgs {
