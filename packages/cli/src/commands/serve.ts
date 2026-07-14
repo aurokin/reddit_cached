@@ -19,6 +19,13 @@ import { getEmbeddedAssets } from "../web-assets";
 
 const DEFAULT_PORT = 3001;
 
+/** True when running from a `bun build --compile` binary, whose bundled
+ * sources live in Bun's virtual filesystem (/$bunfs on POSIX, ~BUN on
+ * Windows) rather than on disk. */
+function isCompiledBinary(): boolean {
+  return import.meta.dir.startsWith("/$bunfs") || import.meta.dir.includes("~BUN");
+}
+
 export async function serveCmd(
   flags: Record<string, string | boolean>,
   _positionals: string[],
@@ -45,6 +52,15 @@ export async function serveCmd(
   const embedded = getEmbeddedAssets();
   if (Object.keys(embedded).length > 0) {
     staticAssets = createEmbeddedAssetSource(embedded);
+  } else if (isCompiledBinary()) {
+    // In a compiled binary, source paths live in Bun's virtual filesystem, so
+    // the disk fallback below could never resolve packages/web/dist — and an
+    // empty manifest means this binary was compiled without the embed codegen.
+    printError(
+      "This binary was built without embedded web assets. Rebuild it with 'bun run build:binary' (repo root).",
+      "NO_WEB_BUILD",
+    );
+    process.exit(1);
   } else {
     // Source checkout without embedded assets — serve a vite build from disk.
     const distDir = resolve(import.meta.dir, "../../../web/dist");

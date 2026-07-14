@@ -7,7 +7,10 @@
 set -euo pipefail
 
 BINARY="${1:-$(cd "$(dirname "$0")/.." && pwd)/dist/reddit-cached}"
-PORT="${2:-3199}"
+BINARY="$(cd "$(dirname "$BINARY")" && pwd)/$(basename "$BINARY")" # the script cds away later
+# Default to a random high port so parallel/stale runs don't collide; the
+# pre-flight check below rejects a squatted port either way.
+PORT="${2:-$(( (RANDOM % 20000) + 20000 ))}"
 BASE="http://127.0.0.1:$PORT"
 
 if [[ ! -x "$BINARY" ]]; then
@@ -37,9 +40,16 @@ cd "$TMP_DIR" # prove the binary is cwd-independent
 "$BINARY" status --db "$REDDIT_CACHED_DB" | grep -q '"totalPosts"' || fail "status did not emit stats JSON"
 
 # --- serve: API + embedded SPA ---
+# Refuse a squatted port: a stale server here would answer the checks below
+# and produce a false pass against the wrong binary.
+if curl -s -o /dev/null --max-time 2 "$BASE/"; then
+  fail "port $PORT is already serving HTTP — pass a free port"
+fi
+
 "$BINARY" serve --port "$PORT" &
 SERVER_PID=$!
 for _ in $(seq 1 50); do
+  kill -0 "$SERVER_PID" 2>/dev/null || fail "serve exited during startup"
   curl -sf "$BASE/api/health" >/dev/null 2>&1 && break
   sleep 0.1
 done

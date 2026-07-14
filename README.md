@@ -77,7 +77,7 @@ To get a standalone `reddit-cached` binary, compile it once and put it on your
 PATH:
 
 ```bash
-cd packages/cli && bun run build   # emits dist/reddit-cached
+bun run build:binary   # emits packages/cli/dist/reddit-cached (CLI + web dashboard)
 ```
 
 The database lives in the platform data directory — macOS:
