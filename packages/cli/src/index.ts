@@ -38,6 +38,8 @@ Commands:
   today                   What's new: activity, inbox, links, sync health
                           --window 24h|7d|since-last-job, --out, --json
   status                  Show database statistics
+  serve                   Start the local web dashboard (API + SPA)
+                          --port N (default 3001)
   export                  Export posts to JSON/CSV/Markdown
   import <dir>            Import an unzipped Reddit GDPR data export
                           (backfills past Reddit's ~1000-item listing cap)

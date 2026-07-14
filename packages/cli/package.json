@@ -7,12 +7,14 @@
   },
   "scripts": {
     "dev": "bun run src/index.ts",
-    "build": "bun build ./src/index.ts --compile --outfile dist/reddit-cached",
+    "build": "bun build ./src/index.ts --compile --outfile dist/reddit-cached-dev",
+    "build:binary": "bun run scripts/build-binary.ts",
     "test": "bun test",
     "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
-    "@reddit-cached/core": "workspace:*"
+    "@reddit-cached/core": "workspace:*",
+    "@reddit-cached/web": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "^1.3.11",

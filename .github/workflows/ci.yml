@@ -14,6 +14,15 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run verify
 
+  binary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run build:binary
+      - run: packages/cli/scripts/smoke-binary.sh
+
   e2e:
     runs-on: ubuntu-latest
     steps:

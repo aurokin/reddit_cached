@@ -2,6 +2,12 @@
   "name": "@reddit-cached/web",
   "version": "0.1.0",
   "type": "module",
+  "exports": {
+    "./app": {
+      "bun": "./src/api/app.ts",
+      "default": "./src/api/app.ts"
+    }
+  },
   "scripts": {
     "dev": "REDDIT_CACHED_DB=./dev-data/reddit-cached.db bunx concurrently -n server,vite -c blue,green --kill-others \"bun run dev:server\" \"bunx vite\"",
     "dev:server": "REDDIT_CACHED_DB=./dev-data/reddit-cached.db bun run --watch src/api/server.ts",

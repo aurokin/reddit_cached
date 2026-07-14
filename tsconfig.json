@@ -14,7 +14,8 @@
     "baseUrl": ".",
     "paths": {
       "@reddit-cached/core": ["packages/core/src/index.ts"],
-      "@reddit-cached/core/*": ["packages/core/src/*"]
+      "@reddit-cached/core/*": ["packages/core/src/*"],
+      "@reddit-cached/web/app": ["packages/web/src/api/app.ts"]
     },
     "types": ["bun"]
   },
