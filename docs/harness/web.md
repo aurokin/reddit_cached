@@ -35,8 +35,12 @@ the same SQLite database, auth files, and sync machinery.
 
 ### What is still weakly proved
 
-- Long-running sync and concurrent CLI/web usage still need more confidence than
-  the current smoke coverage provides.
+- Concurrent local access now has an explicit envelope: the web app runs one
+  sync at a time (a second `/api/sync/fetch` gets a 409), scheduled pipelines
+  take a cross-process `.reddit-jobs.lock` next to the database (an overlapping
+  run exits 0 with `{"skipped":true}`), and checkpoint resume across
+  interrupted runs is covered by tests. Sustained long-run behavior is the
+  remaining weak spot.
 - Settings tag management is CRUD-oriented; tag merge is intentionally out of
   the current scope.
 - Component tests currently pass but emit React `act(...)` warnings around
@@ -121,8 +125,11 @@ What to validate:
 What is still weak:
 
 - sustained long-run behavior
-- concurrent CLI + web sync pressure
 - SSE behavior under heavier backpressure than smoke tests cover
+
+Concurrent CLI + web pressure is bounded by design rather than tested at load:
+the in-process single-flight guard (409) and the cross-process jobs lock are
+both unit-tested, so overlapping writers skip instead of racing.
 
 ### 5. Production harness
 
