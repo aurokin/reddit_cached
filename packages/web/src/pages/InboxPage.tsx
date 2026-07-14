@@ -1,17 +1,24 @@
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useInbox } from "@/hooks/queries";
 import { formatRelative } from "@/lib/utils";
 import type { InboxItemType } from "@/types";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { ExternalLink, Inbox } from "lucide-react";
+import { useEffect } from "react";
 
 export interface InboxFilters {
   type?: InboxItemType;
   unread?: boolean;
+  page?: number;
 }
+
+const PAGE_SIZE = 50;
+
+const UNREAD_TOOLTIP = "Unread on Reddit as of the last inbox sync";
 
 const TABS: Array<{ value: InboxItemType | undefined; label: string }> = [
   { value: undefined, label: "All" },
@@ -31,10 +38,13 @@ const TYPE_LABELS: Record<InboxItemType, string> = {
 export function InboxPage() {
   const search: InboxFilters = useSearch({ strict: false });
   const navigate = useNavigate();
+  const page = search.page ?? 1;
+  const offset = (page - 1) * PAGE_SIZE;
   const inbox = useInbox({
     type: search.type,
     unread: search.unread ? true : undefined,
-    limit: 100,
+    limit: PAGE_SIZE,
+    offset,
   });
 
   const setFilters = (next: InboxFilters): void => {
@@ -43,16 +53,41 @@ export function InboxPage() {
       search: {
         type: next.type,
         unread: next.unread ? true : undefined,
+        page: next.page && next.page > 1 ? next.page : undefined,
       },
     });
   };
+
+  const total = inbox.data?.total ?? 0;
+  const rangeStart = total === 0 ? 0 : offset + 1;
+  const rangeEnd = offset + (inbox.data?.items.length ?? 0);
+
+  // An out-of-range page (stale bookmark, or items pruned by a sync while
+  // paginated) would render a misleading empty state and a nonsense range —
+  // clamp back to the last page that has items.
+  const outOfRange = inbox.data !== undefined && total > 0 && offset >= total;
+  useEffect(() => {
+    if (!outOfRange) return;
+    const lastPage = Math.ceil(total / PAGE_SIZE);
+    void navigate({
+      to: "/inbox",
+      search: {
+        type: search.type,
+        unread: search.unread ? true : undefined,
+        page: lastPage > 1 ? lastPage : undefined,
+      },
+      replace: true,
+    });
+  }, [outOfRange, total, navigate, search.type, search.unread]);
 
   return (
     <div className="flex flex-col gap-4" data-testid="inbox-page">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">Inbox</h1>
         {inbox.data && inbox.data.unreadCount > 0 ? (
-          <Badge data-testid="inbox-page-unread">{inbox.data.unreadCount} unread</Badge>
+          <Badge data-testid="inbox-page-unread" title={UNREAD_TOOLTIP}>
+            {inbox.data.unreadCount} unread
+          </Badge>
         ) : null}
         <label className="ml-auto flex items-center gap-1.5 text-xs">
           <input
@@ -113,7 +148,7 @@ export function InboxPage() {
               >
                 <div className="flex items-baseline gap-2">
                   {isUnread ? (
-                    <span className="text-primary" aria-label="unread">
+                    <span className="text-primary" aria-label="unread" title={UNREAD_TOOLTIP}>
                       ●
                     </span>
                   ) : null}
@@ -157,6 +192,12 @@ export function InboxPage() {
             );
           })}
         </div>
+      ) : outOfRange ? (
+        // Items exist on earlier pages; the clamp effect above is redirecting.
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-14 w-full" />
+          <Skeleton className="h-14 w-full" />
+        </div>
       ) : (
         <EmptyState
           icon={<Inbox className="h-8 w-8" />}
@@ -164,6 +205,38 @@ export function InboxPage() {
           description="Run `reddit-cached fetch inbox` or wait for the scheduled job to sync replies, mentions, and messages."
         />
       )}
+
+      {inbox.data && total > 0 && !outOfRange ? (
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span data-testid="inbox-range">
+            {rangeStart}–{rangeEnd} of {total}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={page <= 1}
+              onClick={() =>
+                setFilters({ type: search.type, unread: search.unread, page: page - 1 })
+              }
+              data-testid="inbox-prev"
+            >
+              Prev
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={rangeEnd >= total}
+              onClick={() =>
+                setFilters({ type: search.type, unread: search.unread, page: page + 1 })
+              }
+              data-testid="inbox-next"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

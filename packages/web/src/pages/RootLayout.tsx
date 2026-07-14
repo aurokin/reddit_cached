@@ -1,6 +1,7 @@
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ErrorState } from "@/components/ErrorState";
+import { HealthBanner } from "@/components/HealthBanner";
 import { SearchBar } from "@/components/SearchBar";
 import { SyncStatus } from "@/components/SyncStatus";
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,8 @@ export function RootLayout({ children }: { children: ReactNode }) {
           <SyncStatus showControls={false} testId="sync-status-header" />
         </div>
       </header>
+
+      <HealthBanner />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
         <ErrorBoundary fallback={(err, reset) => <ErrorState error={err} onRetry={reset} />}>

@@ -54,6 +54,10 @@ function mockApi(payloads: {
   runs?: SyncRunSummary[];
   digest?: TodayDigest;
   markdown?: string;
+  /** totalPosts/totalComments — zero both to trigger the onboarding checklist */
+  totals?: { posts: number; comments: number };
+  authenticated?: boolean;
+  jobRuns?: Array<{ id: number }>;
 }): void {
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
@@ -64,10 +68,26 @@ function mockApi(payloads: {
       });
 
     if (url.includes("/api/auth/status")) {
-      return respond({ authenticated: true, username: "tester", testMode: true });
+      return respond({
+        authenticated: payloads.authenticated ?? true,
+        username: "tester",
+        testMode: true,
+      });
     }
     if (url.includes("/api/sync/runs")) {
       return respond({ items: payloads.runs ?? [] });
+    }
+    if (url.includes("/api/jobs")) {
+      return respond({
+        items: (payloads.jobRuns ?? []).map(({ id }) => ({
+          id,
+          startedAt: 1_800_000_000_000,
+          finishedAt: 1_800_000_060_000,
+          status: "complete",
+          trigger: "manual",
+          steps: [],
+        })),
+      });
     }
     if (url.includes("/api/sync/status")) {
       return respond({
@@ -76,8 +96,8 @@ function mockApi(payloads: {
         lastFullSyncTime: null,
         incrementalCursors: {},
         stats: {
-          totalPosts: 0,
-          totalComments: 0,
+          totalPosts: payloads.totals?.posts ?? 8,
+          totalComments: payloads.totals?.comments ?? 3,
           orphanedCount: 0,
           activeCountByOrigin: { saved: 5, upvoted: 2, submitted: 1, commented: 3 },
           contextCount: 10,
@@ -149,6 +169,44 @@ describe("HomePage dashboard", () => {
     expect(healthGrid.getAllByText("never")).toHaveLength(4);
   });
 
+  test("renders the onboarding checklist instead of the dashboard when the archive is empty", async () => {
+    mockApi({ totals: { posts: 0, comments: 0 } });
+    renderWithProviders(<HomePage />);
+
+    await waitFor(() => expect(screen.getByTestId("onboarding")).toBeTruthy());
+    expect(screen.queryByTestId("dashboard-sync-health")).toBeNull();
+    expect(screen.queryByTestId("today-strip")).toBeNull();
+  });
+
+  test("shows the full-sync callout only when every origin lacks a complete full sync", async () => {
+    mockApi({
+      runs: [
+        makeRun("saved", {}, null),
+        makeRun("upvoted", {}, null),
+        makeRun("submitted", {}, null),
+        makeRun("commented", {}, null),
+      ],
+    });
+    renderWithProviders(<HomePage />);
+
+    await waitFor(() => expect(screen.getByTestId("full-sync-callout")).toBeTruthy());
+  });
+
+  test("hides the full-sync callout when any origin has a complete full sync", async () => {
+    mockApi({
+      runs: [
+        makeRun("saved"),
+        makeRun("upvoted", {}, null),
+        makeRun("submitted", {}, null),
+        makeRun("commented", {}, null),
+      ],
+    });
+    renderWithProviders(<HomePage />);
+
+    await waitFor(() => expect(screen.getByTestId("dashboard-sync-health")).toBeTruthy());
+    expect(screen.queryByTestId("full-sync-callout")).toBeNull();
+  });
+
   test("shows saturation warning and errored badge from sync runs", async () => {
     mockApi({
       runs: [
@@ -201,9 +259,33 @@ describe("SyncHealthCard", () => {
     );
 
     await waitFor(() => expect(screen.getByTestId("sync-start-upvoted")).toBeTruthy());
+    expect(screen.getByTestId("sync-start-upvoted").textContent).toBe("Sync");
     fireEvent.click(screen.getByTestId("sync-start-upvoted"));
     await waitFor(() => expect(MockEventSource.latest).not.toBeNull());
     expect(String(MockEventSource.latest?.url)).toContain("type=upvoted");
     expect(String(MockEventSource.latest?.url)).toContain("full=false");
+  });
+
+  test("switches to a full sync when the origin has never completed one", async () => {
+    mockApi({});
+    globalThis.EventSource = MockEventSource as unknown as typeof EventSource;
+    renderWithProviders(
+      <SyncHealthCard origin="saved" summary={makeRun("saved", {}, null)} activeCount={2} />,
+    );
+
+    await waitFor(() => expect(screen.getByTestId("sync-start-saved")).toBeTruthy());
+    expect(screen.getByTestId("sync-start-saved").textContent).toBe("Full sync");
+    fireEvent.click(screen.getByTestId("sync-start-saved"));
+    await waitFor(() => expect(MockEventSource.latest).not.toBeNull());
+    expect(String(MockEventSource.latest?.url)).toContain("type=saved");
+    expect(String(MockEventSource.latest?.url)).toContain("full=true");
+  });
+
+  test("offers a full sync when the origin has never synced at all", async () => {
+    mockApi({});
+    renderWithProviders(<SyncHealthCard origin="commented" summary={undefined} activeCount={0} />);
+
+    await waitFor(() => expect(screen.getByTestId("sync-start-commented")).toBeTruthy());
+    expect(screen.getByTestId("sync-start-commented").textContent).toBe("Full sync");
   });
 });

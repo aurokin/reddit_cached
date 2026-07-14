@@ -22,7 +22,12 @@ export function InboxPreview({ digest }: { digest: TodayDigest | undefined }) {
         <h3 className="text-sm font-semibold">Inbox</h3>
         <div className="flex items-center gap-2">
           {inbox && inbox.unreadCount > 0 ? (
-            <Badge data-testid="inbox-unread-badge">{inbox.unreadCount} unread</Badge>
+            <Badge
+              data-testid="inbox-unread-badge"
+              title="Unread on Reddit as of the last inbox sync"
+            >
+              {inbox.unreadCount} unread
+            </Badge>
           ) : null}
           <Link to="/inbox" className="text-xs text-muted-foreground hover:underline">
             View all →

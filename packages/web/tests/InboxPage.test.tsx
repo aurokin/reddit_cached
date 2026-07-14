@@ -50,9 +50,13 @@ function mockApi(items: InboxApiItem[]): { calls: string[] } {
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
     calls.push(url);
+    // Honor limit/offset so pagination tests exercise real slicing.
+    const params = new URL(url, "http://localhost").searchParams;
+    const offset = Number(params.get("offset") ?? 0);
+    const limit = Number(params.get("limit") ?? items.length);
     return new Response(
       JSON.stringify({
-        items,
+        items: items.slice(offset, offset + limit),
         total: items.length,
         unreadCount: items.filter((i) => i.is_new === 1).length,
       }),
@@ -82,6 +86,10 @@ function renderInboxPage(path = "/inbox"): void {
           ? search.type
           : undefined,
       unread: search.unread === true || search.unread === "true" ? true : undefined,
+      page:
+        Number.isInteger(Number(search.page)) && Number(search.page) > 1
+          ? Number(search.page)
+          : undefined,
     }),
   });
   const postRoute = createRoute({
@@ -143,6 +151,51 @@ describe("InboxPage", () => {
     await waitFor(() =>
       expect(calls.some((u) => u.includes("/api/inbox") && u.includes("type=mention"))).toBe(true),
     );
+  });
+
+  test("paginates with prev/next buttons and a range indicator", async () => {
+    const items = Array.from({ length: 60 }, (_, i) => makeItem(`pg${i}`));
+    mockApi(items);
+    renderInboxPage();
+
+    await waitFor(() => expect(screen.getAllByTestId("inbox-row")).toHaveLength(50));
+    expect(screen.getByTestId("inbox-range").textContent).toBe("1–50 of 60");
+    expect((screen.getByTestId("inbox-prev") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("inbox-next") as HTMLButtonElement).disabled).toBe(false);
+
+    fireEvent.click(screen.getByTestId("inbox-next"));
+
+    await waitFor(() => expect(currentRouter?.state.location.search).toEqual({ page: 2 }));
+    await waitFor(() => expect(screen.getAllByTestId("inbox-row")).toHaveLength(10));
+    expect(screen.getByTestId("inbox-range").textContent).toBe("51–60 of 60");
+    expect((screen.getByTestId("inbox-prev") as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByTestId("inbox-next") as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(screen.getByTestId("inbox-prev"));
+    await waitFor(() => expect(currentRouter?.state.location.search).toEqual({}));
+    await waitFor(() => expect(screen.getByTestId("inbox-range").textContent).toBe("1–50 of 60"));
+  });
+
+  test("clamps an out-of-range page back to the last page with items", async () => {
+    const items = Array.from({ length: 10 }, (_, i) => makeItem(`cl${i}`));
+    mockApi(items);
+    renderInboxPage("/inbox?page=3");
+
+    // All 10 items fit on page 1, so ?page=3 gets replaced with page 1 —
+    // never the misleading "Inbox is empty" state or a "101–100 of 10" range.
+    await waitFor(() => expect(currentRouter?.state.location.search).toEqual({}));
+    await waitFor(() => expect(screen.getAllByTestId("inbox-row")).toHaveLength(10));
+    expect(screen.getByTestId("inbox-range").textContent).toBe("1–10 of 10");
+    expect(screen.queryByText("Inbox is empty")).toBeNull();
+  });
+
+  test("hides pagination controls when the inbox is empty", async () => {
+    mockApi([]);
+    renderInboxPage();
+
+    await waitFor(() => expect(screen.getByText("Inbox is empty")).toBeTruthy());
+    expect(screen.queryByTestId("inbox-prev")).toBeNull();
+    expect(screen.queryByTestId("inbox-next")).toBeNull();
   });
 
   test("rows link locally when mirrored, externally otherwise", async () => {
