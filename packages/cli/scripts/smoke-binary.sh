@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Smoke test for the compiled single-file binary: CLI commands work and
+# `serve` hosts the API plus the embedded SPA. Build first with
+# `bun run build:binary` (repo root). Run from anywhere:
+#
+#   packages/cli/scripts/smoke-binary.sh [path/to/reddit-cached] [port]
+set -euo pipefail
+
+BINARY="${1:-$(cd "$(dirname "$0")/.." && pwd)/dist/reddit-cached}"
+PORT="${2:-3199}"
+BASE="http://127.0.0.1:$PORT"
+
+if [[ ! -x "$BINARY" ]]; then
+  echo "smoke-binary: no binary at $BINARY — run 'bun run build:binary' first" >&2
+  exit 1
+fi
+
+TMP_DIR="$(mktemp -d)"
+export REDDIT_CACHED_DB="$TMP_DIR/smoke.db"
+SERVER_PID=""
+cleanup() {
+  [[ -n "$SERVER_PID" ]] && kill "$SERVER_PID" 2>/dev/null || true
+  rm -rf "$TMP_DIR"
+}
+trap cleanup EXIT
+
+fail() {
+  echo "smoke-binary: FAIL — $1" >&2
+  exit 1
+}
+
+cd "$TMP_DIR" # prove the binary is cwd-independent
+
+# --- CLI surface ---
+"$BINARY" --version >/dev/null || fail "--version"
+# CLI commands take --db; serve reads REDDIT_CACHED_DB (web app convention).
+"$BINARY" status --db "$REDDIT_CACHED_DB" | grep -q '"totalPosts"' || fail "status did not emit stats JSON"
+
+# --- serve: API + embedded SPA ---
+"$BINARY" serve --port "$PORT" &
+SERVER_PID=$!
+for _ in $(seq 1 50); do
+  curl -sf "$BASE/api/health" >/dev/null 2>&1 && break
+  sleep 0.1
+done
+
+curl -sf "$BASE/api/health" | grep -q '"ok":true' || fail "/api/health"
+
+INDEX="$(curl -sf "$BASE/")"
+echo "$INDEX" | grep -q '<div id="root">' || fail "/ did not return the SPA index"
+
+JS_PATH="$(echo "$INDEX" | grep -o '/assets/[^"]*\.js' | head -1)"
+[[ -n "$JS_PATH" ]] || fail "no hashed /assets/*.js referenced by index.html"
+JS_TYPE="$(curl -sf -o /dev/null -w '%{content_type}' "$BASE$JS_PATH")"
+[[ "$JS_TYPE" == application/javascript* ]] || fail "$JS_PATH content-type was '$JS_TYPE'"
+
+FAVICON_STATUS="$(curl -s -o /dev/null -w '%{http_code}' "$BASE/favicon.svg")"
+[[ "$FAVICON_STATUS" == 200 ]] || fail "/favicon.svg returned $FAVICON_STATUS"
+
+echo "smoke-binary: OK ($BINARY on $BASE)"

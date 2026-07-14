@@ -56,6 +56,10 @@ provenance), and `resumeCursors`. All commands emit JSON by default; pass
   plus `--origin saved|upvoted|submitted|commented|context` and `--tag`.
 - **Bulk export for another tool** → `reddit-cached export --format
   json|csv|markdown`.
+- **Browse in a UI** → `reddit-cached serve` starts the local web dashboard
+  (API + SPA) at http://127.0.0.1:3001 (`--port` to change). Compiled binaries
+  ship with the SPA embedded; from a source checkout, build the web package
+  first.
 - **Refresh the cache** → `reddit-cached fetch --all` (all four origins,
   incremental) or `reddit-cached fetch --type saved --full` for a full resync.
   Requires auth (browser-extension session or OAuth).

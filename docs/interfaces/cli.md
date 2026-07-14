@@ -22,6 +22,7 @@ reddit-cached today [--window 24h|7d|since-last-job] [--out f.md] [--json]
 reddit-cached export [--format json|csv|markdown] [filters...]
 reddit-cached import <dir> [--types saved,upvoted,submitted,commented] [--limit N] [--dry-run]
 reddit-cached status
+reddit-cached serve [--port N]
 reddit-cached unsave [selectors...] [--dry-run] --confirm
 reddit-cached tag list|create|rename|delete|add|remove|show
 reddit-cached links top [--window 90d] [--exclude-reddit] [--limit N]
@@ -128,3 +129,9 @@ reddit-cached jobs uninstall-systemd [--unit-name <name>]
 - `status` also derives a `warnings` array (last pipeline run errored with its
   failed step names; not authenticated / session disconnected) from existing
   state — shown prominently at the top in `--human` mode.
+- `serve` starts the web dashboard (API + SPA) on `--port` (default 3001,
+  bound to 127.0.0.1) and prints the URL to stderr. Compiled binaries built
+  with `bun run build:binary` embed the SPA assets, so one downloaded file is
+  both the CLI and the dashboard; from a source checkout it serves
+  `packages/web/dist` (run the web build first). `--db` maps onto
+  `REDDIT_CACHED_DB`, the same variable the standalone web server uses.

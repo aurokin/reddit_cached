@@ -17,6 +17,7 @@
       },
       "dependencies": {
         "@reddit-cached/core": "workspace:*",
+        "@reddit-cached/web": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.3.11",

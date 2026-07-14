@@ -26,6 +26,7 @@ import { linksRebuildCmd, linksSearchCmd, linksTopCmd } from "./links";
 import { listCmd } from "./list";
 import { researchCmd } from "./research";
 import { searchCmd } from "./search";
+import { serveCmd } from "./serve";
 import { statusCmd } from "./status";
 import { tagAdd, tagCreate, tagDelete, tagList, tagRemove, tagRename, tagShow } from "./tag";
 import { todayCmd } from "./today";
@@ -49,6 +50,7 @@ export const COMMANDS: Record<string, CommandHandler> = {
   research: researchCmd,
   today: todayCmd,
   status: statusCmd,
+  serve: serveCmd,
   export: exportCmd,
   import: importCmd,
   unsave: unsaveCmd,
