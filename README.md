@@ -49,7 +49,7 @@ unsave.
 Requires [Bun](https://bun.sh).
 
 ```bash
-git clone <this-repo> && cd reddit_saved
+git clone https://github.com/aurokin/reddit_cached && cd reddit_cached
 bun install
 cd packages/web
 bun run build
@@ -82,9 +82,9 @@ cd packages/cli && bun run build   # emits dist/reddit-cached
 
 The database lives in the platform data directory — macOS:
 `~/Library/Application Support/reddit-cached/reddit-cached.db`, Linux (XDG):
-`~/.local/share/reddit-cached/reddit-cached.db`. Override with
-`REDDIT_CACHED_DB=<path>`. The web UI and CLI share the same database and auth
-files.
+`~/.local/share/reddit-cached/reddit-cached.db`. The web app honors
+`REDDIT_CACHED_DB=<path>`; the CLI takes `--db <path>`. By default the web UI
+and CLI share the same database and auth files.
 
 ## Scheduled syncs
 
