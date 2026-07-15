@@ -90,7 +90,12 @@ const binPath = join(pkgDir, "bin/reddit-cached.js");
 writeFileSync(binPath, `#!/usr/bin/env bun\n${readFileSync(binPath, "utf8")}`);
 
 // --- static assets + docs ---
-cpSync(webDistDir, join(pkgDir, "web-dist"), { recursive: true });
+// Skip sourcemaps to match listDistFiles above (they never reach the served
+// asset manifest and would triple the package size).
+cpSync(webDistDir, join(pkgDir, "web-dist"), {
+  recursive: true,
+  filter: (src) => !src.endsWith(".map"),
+});
 cpSync(join(rootDir, "README.md"), join(pkgDir, "README.md"));
 cpSync(join(rootDir, "LICENSE"), join(pkgDir, "LICENSE"));
 
