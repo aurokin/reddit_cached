@@ -94,6 +94,16 @@ jobs:
       - name: Package release assets
         run: packages/cli/scripts/package-release.sh
 
+      - name: Smoke test host-target tarball
+        # The runner can only execute its own platform's binary (linux-amd64
+        # on ubuntu-latest); the other targets are covered by existence +
+        # checksum. Extract the actual release asset — not a rebuild — so the
+        # smoke run exercises the bytes that ship.
+        run: |
+          tmp="$(mktemp -d)"
+          tar -xzf dist-release/reddit-cached-linux-amd64.tar.gz -C "$tmp"
+          packages/cli/scripts/smoke-binary.sh "$tmp/reddit-cached"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
