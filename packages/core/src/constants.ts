@@ -4,7 +4,7 @@ import type { ContentOrigin, FilterSettings, PostType } from "./types";
 // App Info
 // ============================================================================
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.1";
 export const USER_AGENT_TEMPLATE = "bun:reddit-cached:v{version} (by /u/{username})";
 
 // ============================================================================
