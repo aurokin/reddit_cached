@@ -24,5 +24,10 @@ for (const target of targets) {
   for (const file of runtimeFiles) {
     fs.copyFileSync(path.join(rootDir, file), path.join(targetDir, file));
   }
+  fs.cpSync(path.join(rootDir, "icons"), path.join(targetDir, "icons"), {
+    recursive: true,
+    // Ship only the rendered PNGs; icon.svg is the source-of-truth master.
+    filter: (src) => !src.endsWith(".svg"),
+  });
   fs.copyFileSync(path.join(rootDir, target.manifest), path.join(targetDir, "manifest.json"));
 }
