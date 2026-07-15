@@ -2,9 +2,9 @@
   "manifest_version": 3,
   "name": "Reddit Cached (companion)",
   "short_name": "RedditCached",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Forwards your reddit.com session to the local Reddit Cached app on localhost.",
-  "permissions": ["cookies", "storage", "alarms", "activeTab"],
+  "permissions": ["cookies", "storage", "alarms"],
   "host_permissions": ["*://*.reddit.com/*", "http://localhost/*", "http://127.0.0.1/*"],
   "background": {
     "scripts": ["background.js"],
