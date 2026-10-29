@@ -46,4 +46,5 @@ This repo uses progressive disclosure documentation:
 
 ### I want to know where active work is tracked
 
-- Read [tracking.md](./tracking.md). Repo docs are not the execution tracker.
+- Read [tracking.md](./tracking.md) for the open backlog; active work is tracked
+  in GitHub issues.
